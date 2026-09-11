@@ -46,6 +46,32 @@ class ModellingTools(unittest.TestCase):
             with self.assertRaises(ValueError):
                 PhotoFrame.fit(**({'center_x': 600, 'floor_y': 1500, 'top_y': 140} | options))
 
+    def test_compound_svg_fill_and_curved_hole(self):
+        frame = PhotoFrame(0, 0, 1)
+        outer = [(-.4,-.4),(.4,-.4),(.4,.4),(-.4,.4)]
+        hole = [(-.15,-.15),(.15,-.15),(.15,.15),(-.15,.15)]
+        for rule, contour in [('evenodd', hole), ('nonzero', hole[::-1])]:
+            obj = panel(self.root, 'SVG hole '+rule, outer, lambda x,z: x*x+z*z,
+                        self.material, holes=[contour], fill_rule=rule, frame=frame,
+                        smooth=0, thickness=0, offset=0, step=.2, tolerance=.005)
+            area = sum(p.area for p in obj.data.polygons)
+            self.assertGreater(area, .55)
+            for polygon in obj.data.polygons:
+                center = sum((obj.data.vertices[i].co for i in polygon.vertices), Vector())/len(polygon.vertices)
+                self.assertFalse(abs(center.x) < .149 and abs(center.z) < .149)
+        with self.assertRaises(ValueError):
+            panel(self.root, 'invalid', outer, lambda x,z: 0, self.material,
+                  holes=[[(0,0)]], smooth=0)
+
+    def test_curved_long_svg_closing_edge(self):
+        # A long oblique closing edge previously kept losing its refinement point.
+        boundary = [(0.238, -1.9108),(.50,-2.02),(.57,-1.80),(.2448,-1.7782)]
+        depth = lambda x,z: .5*(x*x+(z-1.8)**2)
+        obj = panel(self.root, 'Oblique closing edge', boundary, depth, self.material,
+                    frame=PhotoFrame(0,0,1), smooth=0, thickness=0, offset=0,
+                    step=.065, tolerance=.0015)
+        self.assertLess(self.max_error(obj, depth), .0016)
+
     def test_projection_miss_and_evaluated_transform(self):
         obj = mesh_object(self.root, 'Projection plane', [(-1,0,-1),(1,0,-1),(1,0,1),(-1,0,1)],
                           [(0,1,2,3)], self.material)

@@ -10,6 +10,7 @@ from mathutils import Vector, geometry
 from mathutils.bvhtree import BVHTree
 
 from restore_halo import attach, thread
+from sewing_patterns import contains
 
 REPO = Path(__file__).parent
 PRODUCT = 'https://www.goodsmile.com/en/product/1140953/Chocopuni+Plushie+Aoba+Hikari+Nozomi'
@@ -172,7 +173,7 @@ def mesh_object(root, name, vertices, faces, material, *, bone='head', subdiv=Fa
 
 def panel(root, name, points, depth, material, *, bone='head', offset=.008,
           thickness=.003, smooth=3, step=.07, subdiv=False, frame=PhotoFrame(),
-          tolerance=None, max_vertices=4096):
+          tolerance=None, max_vertices=4096, holes=(), fill_rule='nonzero'):
     """Project felt; optionally refine where edge/centroid samples exceed tolerance.
 
     Tolerance measures base-mesh depth error before Subdivision and Solidify.
@@ -182,21 +183,15 @@ def panel(root, name, points, depth, material, *, bone='head', offset=.008,
         raise ValueError(f'{name}: panel step must be positive and finite.')
     if tolerance is not None and (not math.isfinite(tolerance) or tolerance <= 0 or max_vertices < 3):
         raise ValueError(f'{name}: tolerance and vertex budget must be positive.')
-    boundary = [photo(p, frame=frame) for p in (outline_samples(points, smooth) if smooth else points)]
+    if fill_rule not in {'nonzero', 'evenodd'}:
+        raise ValueError(f'{name}: unsupported fill rule.')
+    contours = [[photo(p, frame=frame) for p in
+                 (outline_samples(ring, smooth) if smooth else ring)] for ring in [points, *holes]]
+    boundary = contours[0]
     if len(boundary) < 3 or not all(math.isfinite(c) for p in boundary for c in p):
         raise ValueError(f'{name}: a panel needs at least three finite points.')
-    if sum(a[0]*b[1] - a[1]*b[0] for a, b in zip(boundary, boundary[1:] + boundary[:1])) < 0:
-        boundary.reverse()
-    vertices = [Vector(p) for p in boundary]
-    ymin, ymax = min(p[1] for p in boundary), max(p[1] for p in boundary)
-    for row in range(1, math.ceil((ymax - ymin) / step)):
-        y = ymin + row * step
-        xs = sorted(a[0] + (y-a[1])/(b[1]-a[1])*(b[0]-a[0])
-                    for a, b in zip(boundary, boundary[1:] + boundary[:1])
-                    if min(a[1], b[1]) <= y < max(a[1], b[1]))
-        for left, right in zip(xs[::2], xs[1::2]):
-            for col in range(1, math.floor((right - left) / step)):
-                vertices.append(Vector((left + col * step, y)))
+    if any(len(ring) < 3 or not all(math.isfinite(c) for p in ring for c in p) for ring in contours):
+        raise ValueError(f'{name}: each contour needs at least three finite points.')
     @lru_cache(maxsize=None)
     def projected(x, z):
         try:
@@ -207,12 +202,53 @@ def panel(root, name, points, depth, material, *, bone='head', offset=.008,
             raise ValueError(f'{name}: non-finite projected depth at {(x, z)}.')
         return y
 
+    if tolerance is not None:
+        # Refine the actual constrained loops, not loose points on their edges:
+        # CDT may discard collinear loose boundary points in subsequent passes.
+        def edge_points(a, b, level=0):
+            ya, yb = projected(*a), projected(*b)
+            probes = [(t, tuple(a[j]+(b[j]-a[j])*t for j in (0,1))) for t in (.25,.5,.75)]
+            if max(abs(projected(*p)-(ya+(yb-ya)*t)) for t,p in probes) <= tolerance/2:
+                return [a]
+            if level == 12:
+                raise ValueError(f'{name}: boundary projection did not converge; check depth continuity.')
+            midpoint = probes[1][1]
+            result = edge_points(a,midpoint,level+1)+edge_points(midpoint,b,level+1)
+            if len(result) > max_vertices:
+                raise ValueError(f'{name}: adaptive boundary exceeds {max_vertices} vertices.')
+            return result
+        contours = [sum((edge_points(a,b) for a,b in zip(ring, ring[1:]+ring[:1])), [])
+                    for ring in contours]
+        boundary = contours[0]
+    if sum(a[0]*b[1] - a[1]*b[0] for a, b in zip(boundary, boundary[1:] + boundary[:1])) < 0:
+        for ring in contours:
+            ring.reverse()
+    vertices = [Vector(p) for ring in contours for p in ring]
+    edges, cursor = [], 0
+    for ring in contours:
+        edges += [(cursor+i, cursor+(i+1)%len(ring)) for i in range(len(ring))]
+        cursor += len(ring)
+    all_boundary = [p for ring in contours for p in ring]
+    ymin, ymax = min(p[1] for p in all_boundary), max(p[1] for p in all_boundary)
+    for row in range(1, math.ceil((ymax - ymin) / step)):
+        y = ymin + row * step
+        xs = sorted(a[0] + (y-a[1])/(b[1]-a[1])*(b[0]-a[0])
+                    for ring in contours for a, b in zip(ring, ring[1:] + ring[:1])
+                    if min(a[1], b[1]) <= y < max(a[1], b[1]))
+        for left, right in zip(xs[::2], xs[1::2]):
+            for col in range(1, math.floor((right - left) / step)):
+                vertices.append(Vector((left + col * step, y)))
     for iteration in range(9):
         if tolerance is not None and len(vertices) > max_vertices:
             raise ValueError(f'{name}: adaptive panel exceeds {max_vertices} vertices; '
                              'check the depth field or relax the tolerance.')
+        constrained = bool(holes) or tolerance is not None
         coords, _, faces, *_ = geometry.delaunay_2d_cdt(
-            vertices, [], [list(range(len(boundary)))], 1, .000001, False)
+            vertices, edges if constrained else [], [] if constrained else [list(range(len(boundary)))],
+            0 if constrained else 1, .000001, False)
+        if constrained:
+            faces = [face for face in faces if contains(
+                tuple(sum(coords[i][j] for i in face)/len(face) for j in (0,1)), contours, fill_rule)]
         if tolerance is not None and len(coords) > max_vertices:
             raise ValueError(f'{name}: adaptive panel exceeds {max_vertices} vertices.')
         if not faces:
@@ -233,7 +269,9 @@ def panel(root, name, points, depth, material, *, bone='head', offset=.008,
         if not additions:
             break
         if iteration == 8:
-            raise ValueError(f'{name}: adaptive projection did not converge; check depth continuity.')
+            raise ValueError(f'{name}: adaptive projection did not converge '
+                             f'(sampled error {sampled_error:.6f}, {len(coords)} vertices); '
+                             'check depth continuity.')
         vertices.extend(Vector(p) for p in sorted(additions))
 
     obj = mesh_object(root, name, [(p.x, projected(p.x, p.y)-offset, p.y) for p in coords],

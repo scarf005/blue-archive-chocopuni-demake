@@ -44,6 +44,58 @@ references, then copy the reviewed candidate and previews to their repository
 paths and commit the student's source and assets together. Draft images are not
 evidence that fine stitching or final shading is correct.
 
+## Vector sewing patterns
+
+Use a cropped product photo or a same-size black/white part mask to prototype
+embroidery, hair cutouts and halo motifs. Trace only the region being worked on:
+
+```sh
+uv run --python 3.12 vectorize.py trace reference.jpg .work/eyes.svg --crop 218 452 523 548 --colors 6 --speckle 16
+```
+
+`--mask selection.png` selects white pixels and rejects a mismatched canvas.
+Crop coordinates are left/top/right/bottom, with right/bottom exclusive. The SVG
+retains the full source-image canvas and translates the crop back into place.
+Color precision is bits per channel, not a requested number of regions. Inspect
+the trace in Inkscape alongside the photograph; remove background, shadow and
+fabric-noise paths, merge colors, simplify nodes, and give each part a stable ID.
+Keep scleras separate from irises and glints. Hidden contours still need modelling.
+
+Save the reviewed plain-path SVG under `patterns/`, then compile its geometry:
+
+```sh
+uv run --python 3.12 vectorize.py prepare patterns/eyes.svg
+```
+
+Edit the SVG, not the generated same-name JSON. The compiler resolves viewBox,
+nested transforms, cubic/quadratic curves, arcs and basic shapes; it approximates
+curves within a sampled pixel tolerance (`--tolerance`, default 0.6). Point budgets
+reject excessively dense traces. Convert text, clipping, gradients and effects to
+plain opaque paths first; unsupported effects fail rather than disappearing.
+
+Inside Blender, use `sewing_patterns.sew(root, svg_path, depth, materials,
+frame=PhotoFrame(...))`. `materials` maps SVG hex colors to Blender materials.
+Fills become conforming low-poly panels; evenodd/nonzero compound paths preserve
+holes and separate islands. Strokes become round embroidery threads. Paint order
+controls relief via `offset` and `layer_gap`; optional integer `data-layer` on a
+path/group puts paired left/right pieces at the same depth. Keep the stack shallow.
+The importer verifies the source hash and rejects stale JSON. No extra packages
+or network are needed inside Blender or for subsequent saved-model builds.
+
+The tracing/compilation script pins [VTracer](https://github.com/visioncortex/vtracer),
+Pillow and [svgelements](https://github.com/meerk40t/svgelements). Use Python 3.12:
+the pinned VTracer native wheel crashed under the local Python 3.14 interpreter.
+To run the vector tests with the same dependencies:
+
+```sh
+uv run --python 3.12 --with vtracer==0.6.15 --with Pillow==12.0.0 --with svgelements==1.9.6 python -m unittest test_vectorize
+blender --background --factory-startup --python-exit-code 1 --python test_modelling_tools.py
+```
+
+Keep large path coordinates in files, not prompts. Review previews and change
+component IDs, materials, depths and bone assignments. Token savings and human
+modelling-time savings have not been measured.
+
 ## Geometry helpers
 
 Use [plush_variants.py](plush_variants.py) to retain the shared body, studio and rig.
@@ -91,8 +143,8 @@ blender --background --factory-startup --python-exit-code 1 --python test_rebuil
 | Case | Before | After | Change |
 | --- | ---: | ---: | ---: |
 | [Aoba front render](render_previews.py), final → draft | 47.845 s | 4.332 s | 90.9% less wall time; 11.0× |
-| [Curved patch](test_modelling_tools.py), uniform → adaptive: vertices | 965 | 169 | 82.5% fewer |
-| [Curved patch](test_modelling_tools.py), maximum probed depth error | 0.091894 | 0.002683 | 97.1% less |
+| [Curved patch](test_modelling_tools.py), uniform → adaptive: vertices | 965 | 203 | 79.0% fewer |
+| [Curved patch](test_modelling_tools.py), maximum probed depth error | 0.091894 | 0.002716 | 97.0% less |
 
 The render comparison is one run per preset in Blender 5.2.1, Cycles CPU with eight
 threads, using the same `aoba_chocopuni.blend` and `Front comparison` camera. Wall
@@ -101,7 +153,8 @@ time includes Blender startup; use `time blender --background aoba_chocopuni.ble
 the draft measurement. The reduction comes from lower review resolution and sample
 count; final output retains the original settings. Human modelling time was not measured.
 
-The synthetic patch is 0.8 × 0.8 units on a unit sphere. Uniform spacing is `.025`;
+The synthetic patch is 0.8 × 0.8 units on a unit sphere, rerun after explicit
+boundary refinement was added for SVG patterns. Uniform spacing is `.025`;
 adaptive starts at `step=1` with `tolerance=.003`. Independent barycentric probes
 measure the final depth error. Uniform interior sampling leaves long boundary
 edges, which explains its larger error despite the higher vertex count.
