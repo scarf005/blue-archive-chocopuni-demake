@@ -12,6 +12,7 @@ REFERENCE = 'https://arca.live/b/bluearchive/181993371'
 
 def attach(obj, root, bone='head'):
     """Keep authored world coordinates when attaching a sewn piece to its control."""
+    bpy.context.view_layer.update()
     world = obj.matrix_world.copy()
     rig = next((o for o in root.children if o.type == 'ARMATURE'), None)
     obj.parent = rig or root

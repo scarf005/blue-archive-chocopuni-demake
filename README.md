@@ -11,6 +11,17 @@ The complete felt halo is restored from [the rear cap photograph (image 2)](http
 See the [back preview](./preview_back.webp) and [modelling notes](./MODELING.md) for
 the reference workflow and the measured v4 geometry reduction.
 
+## Nozomi
+
+| [original](https://www.goodsmile.com/en/product/1140953/Chocopuni+Plushie+Aoba+Hikari+Nozomi) | front | side | back |
+| --- | --- | --- | --- |
+| ![](https://www.goodsmile.com/gsc-webrevo-sdk-storage-prd/product/image/1140953/tUJ3epDkCjZ1qVXgA4PMcx9hF7SmnNiv.jpg) | ![](./nozomi_preview_front.webp) | ![](./nozomi_preview_three_quarter.webp) | ![](./nozomi_preview_back.webp) |
+
+Open [nozomi_chocopuni.blend](./nozomi_chocopuni.blend) and pose `NOZOMI | pose rig`.
+The twin tails, tapered side locks, half-lidded smile, shorts, reversed shoulder
+strap, armband, and mirrored felt halo follow the product and character references.
+`belt_tail` controls the pointed tail behind the shorts.
+
 ## Posing
 
 Open `hikari_chocopuni.blend`, select `HIKARI | pose rig`, and enter Pose Mode.
@@ -33,6 +44,16 @@ blender --background hikari_chocopuni.blend --python rig_hikari.py
 This saves the open file and refuses to overwrite an existing rig.
 
 Validate the rig with `blender --background hikari_chocopuni.blend --python-exit-code 1 --python test_hikari_rig.py`.
+
+Validate Nozomi with `blender --background nozomi_chocopuni.blend --python-exit-code 1 --python test_student_models.py`.
+
+To rebuild Nozomi from the Hikari template, download the product photograph and
+[character reference](https://static.wikitide.net/bluearchivewiki/8/87/Nozomi_00.png), then run:
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python model_nozomi.py -- --reference nozomi-reference.jpg --character-reference nozomi-character.png
+blender --background nozomi_chocopuni.blend --python render_previews.py -- --prefix nozomi_preview
+```
 
 ## Disclaimer (저작권 고지)
 
