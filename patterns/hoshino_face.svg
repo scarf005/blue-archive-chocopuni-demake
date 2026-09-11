@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="800" viewBox="0 0 650 800">
+  <title>Hoshino: relaxed heterochromatic eye embroidery</title>
+  <g fill="#3e2930" data-layer="0">
+    <path id="eye-outline-L" d="M201 369 Q239 344 283 367 L287 393 Q286 427 250 428 Q213 425 207 400Z"/>
+    <path id="eye-outline-R" d="M357 369 Q400 345 442 371 L438 404 Q428 430 399 429 Q365 426 360 406Z"/>
+  </g>
+  <g fill="#fff5ef" data-layer="1">
+    <path id="eye-sclera-L" d="M209 373 Q244 353 279 372 L281 396 Q278 422 251 423 Q219 422 215 398Z"/>
+    <path id="eye-sclera-R" d="M363 374 Q400 353 435 374 L432 401 Q424 424 400 424 Q370 423 367 403Z"/>
+  </g>
+  <g data-layer="2">
+    <path id="eye-iris-L" fill="#b45757" d="M226 368 Q250 358 273 370 L273 397 Q270 421 252 422 Q227 421 224 400Z"/>
+    <path id="eye-iris-R" fill="#338dc5" d="M373 370 Q397 357 423 371 L424 397 Q421 422 400 424 Q376 421 373 399Z"/>
+  </g>
+  <g data-layer="3">
+    <path id="eye-golden-lower-iris" fill="#f2d349" d="M226 397 Q241 391 253 401 Q263 404 273 394 Q272 420 251 421 Q231 420 226 397Z"/>
+    <path id="eye-cyan-lower-iris" fill="#7bd3ee" d="M374 398 Q388 392 400 401 Q413 404 423 394 Q422 420 400 423 Q379 420 374 398Z"/>
+  </g>
+  <g fill="#443039" data-layer="4">
+    <ellipse id="eye-pupil-L" cx="249" cy="388" rx="6.5" ry="11"/>
+    <ellipse id="eye-pupil-R" cx="398" cy="388" rx="6.5" ry="11"/>
+    <path id="eye-upper-lash-L" d="M198 371 Q232 347 278 361 L289 369 L286 377 Q246 363 213 378 L214 401 L209 407 Q201 394 198 371Z"/>
+    <path id="eye-upper-lash-R" d="M358 369 Q400 348 437 365 L446 376 L441 403 L436 410 L436 382 Q399 363 361 377Z"/>
+  </g>
+  <g fill="#fff5ef" data-layer="5">
+    <ellipse id="eye-glint-L" cx="225" cy="384" rx="7" ry="4.5"/>
+    <ellipse id="eye-glint-R" cx="374" cy="384" rx="7" ry="4.5"/>
+    <ellipse id="eye-glint-inner-L" cx="275" cy="381" rx="7" ry="4"/>
+    <ellipse id="eye-glint-outer-R" cx="426" cy="381" rx="7" ry="4"/>
+  </g>
+  <g fill="none" stroke="#65434a" stroke-width="1.6" data-layer="1">
+    <path id="relaxed-eyebrow-L" d="M238 346L261 345"/>
+    <path id="relaxed-eyebrow-R" d="M390 347L409 347"/>
+    <path id="sleepy-smile" d="M308 442Q322 448 337 441"/>
+  </g>
+  <g fill="none" stroke="#de909e" stroke-width="2" data-layer="1">
+    <path id="blush-L" d="M231 435l-2 9m6-9l-2 9m6-9l-2 9"/>
+    <path id="blush-R" d="M412 435l-2 9m6-9l-2 9m6-9l-2 9"/>
+  </g>
+</svg>

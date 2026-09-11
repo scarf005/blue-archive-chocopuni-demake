@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="800" viewBox="0 0 650 800">
+  <title>Hoshino Chocopuni front hair cut patterns</title>
+  <g fill="#efa6cf" data-layer="0">
+    <path id="left-forehead" d="M315 136 Q249 128 194 168 Q147 199 137 257 Q131 304 150 334 Q163 352 196 370 Q199 330 222 320 L239 299 L230 342 Q247 354 268 371 L268 283 Q277 229 321 181Z"/>
+    <path id="pointed-center-fringe" data-layer="1" d="M311 135 Q364 131 413 159 Q422 208 403 271 Q384 324 359 365 Q341 390 293 412 Q295 391 279 362 Q259 306 270 250 Q278 183 311 135Z"/>
+    <path id="right-forehead" d="M391 151 Q447 165 477 216 Q503 263 496 322 L455 374 Q445 342 411 316 L406 300 L394 336 Q385 345 369 356 Q390 293 391 251 Q412 202 391 151Z"/>
+    <path id="side-panel-L" data-layer="2" d="M175 245 Q179 295 196 328 Q177 371 201 423 L232 460 Q206 480 167 468 Q129 458 122 410 L88 388 L111 367 L98 367 L128 331 Q136 280 175 245Z"/>
+    <path id="side-panel-R" data-layer="2" d="M447 248 Q490 263 497 327 L521 392 L511 411 L518 417 L497 422 Q502 459 465 472 L442 475 L449 459 L419 470 Q441 432 448 398 Q459 356 447 321Z"/>
+  </g>
+  <g fill="none" stroke="#cc78aa" stroke-width="1.4" data-layer="3">
+    <path id="fringe-seam-L" d="M207 268 Q192 306 191 336"/>
+    <path id="fringe-seam-R" d="M435 267 Q452 294 451 335"/>
+  </g>
+</svg>

@@ -1,4 +1,4 @@
-"""Validate the saved Nozomi/Aoba geometry, visible face, packed references and FK rig."""
+"""Validate saved student geometry, visible face, packed references and FK rig."""
 
 import math
 
@@ -58,11 +58,40 @@ assert all(-1.6 < p.x < 1.6 and -.95 < p.y < 1.1 and -.1 < p.z < 3.6
 
 # Front-facing embroidery must be in front of the cushion and unobscured by rear hair.
 face_samples = {'Nozomi': [(275, 490), (465, 490), (377, 544)],
-                'Aoba': [(286, 516), (468, 516), (375, 576)]}[student]
+                'Aoba': [(286, 516), (468, 516), (375, 576)],
+                'Hoshino': [(249,396),(399,396),(322,443)],
+                'Natsu': [(235,399),(374,399),(304,451)]}[student]
+center_x,floor_y,scale = root.get('photo_frame', (375,947,.0038))
 for x, y in face_samples:
     hit, _, _, _, obj, _ = scene.ray_cast(bpy.context.evaluated_depsgraph_get(),
-        Vector(((x-375)*.0038, -5, (947-y)*.0038)), Vector((0, 1, 0)))
+        Vector(((x-center_x)*scale, -5, (floor_y-y)*scale)), Vector((0, 1, 0)))
     assert hit and obj.name.startswith('Face |'), f'Face obscured at {(x,y)}: {obj.name if hit else None}'
+
+if student in {'Hoshino','Natsu'}:
+    assert len(rig.data.bones) == 23 and 'belt_tail' not in rig.data.bones
+    assert not any(o.name.startswith(('Cap |','Cap badge |','Accessories |')) for o in parts)
+    if student == 'Hoshino':
+        assert scene.objects['Hair | long rear fall L'].parent_bone == 'hair_back.L'
+        assert scene.objects['Hair | long rear fall R'].parent_bone == 'hair_back.R'
+        left = scene.objects['Face | eye-iris-L'].data.materials[0].diffuse_color
+        right = scene.objects['Face | eye-iris-R'].data.materials[0].diffuse_color
+        assert left[0] > left[2] and right[2] > right[0], 'Missing heterochromia'
+    else:
+        assert len(scene.objects['Halo | pink motif back'].data.splines) == 6, 'Incomplete crosshair halo'
+        assert scene.objects['Hair | long side ponytail L'].parent_bone == 'hair_back.L'
+        assert scene.objects['Hair | ribbon dark inset'].parent_bone == 'hair_back.L'
+        for side in ('L','R'):
+            pupil = scene.objects['Face | eye-pupil-'+side].data.materials[0].diffuse_color
+            assert min(pupil[:3]) > .85, 'Natsu must retain white embroidered pupils'
+        assert scene.objects['Uniform | rear sailor collar'].parent_bone == 'spine'
+        for x,y in [(286,536),(336,537)]:
+            hit, _, _, _, obj, _ = scene.ray_cast(bpy.context.evaluated_depsgraph_get(),
+                Vector(((x-center_x)*scale,-5,(floor_y-y)*scale)), Vector((0,1,0)))
+            assert hit and obj.name.startswith('Uniform | bow-loop'), 'Collar stripe cuts through bow'
+        for x,y in [(307,599),(308,621)]:
+            hit, _, _, _, obj, _ = scene.ray_cast(bpy.context.evaluated_depsgraph_get(),
+                Vector(((x-center_x)*scale,-5,(floor_y-y)*scale)), Vector((0,1,0)))
+            assert hit and obj.name.startswith('Uniform | cardigan-button'), 'Placket cuts through button'
 
 if student == 'Aoba':
     for sign in (-1, 1):

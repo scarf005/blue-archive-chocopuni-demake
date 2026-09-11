@@ -44,6 +44,28 @@ The [eye pattern](./patterns/aoba_eyes.svg) keeps ivory scleras separate from th
 wine/coral irises and uses narrower pupils and rims. `model_aoba.py` applies the
 pattern on every rebuild; `test_eyes.py` checks front-view visibility.
 
+## Hoshino
+
+| [original](https://www.goodsmile.com/en/product/60773/Chocopuni+Plushie+Shiroko+Hoshino) | front | side | back |
+| --- | --- | --- | --- |
+| ![](https://www.goodsmile.com/gsc-webrevo-sdk-storage-prd/product/image/60773/VKJt98WYk0iuB7pLCShAeMjPNr4gR6fm.jpg) | ![](./hoshino_preview_front.webp) | ![](./hoshino_preview_three_quarter.webp) | ![](./hoshino_preview_back.webp) |
+
+Open [hoshino_chocopuni.blend](./hoshino_chocopuni.blend) and pose `HOSHINO | pose rig`.
+The yellow/blue eyes, pointed pink fringe, looped ahoge, long loose rear hair,
+turquoise tie, dark harness, checked skirt and complete felt halo follow the 17cm
+product. The [character art](https://static.wikitide.net/bluearchivewiki/7/71/Hoshino_00.png)
+and [official three-quarter reference](https://www.goodsmile.com/gsc-webrevo-sdk-storage-prd/product/image/1139188/zCr3JRgupnvsVdSq7mxNWPwDUBkYM5E0.jpg)
+supplement the obscured hair/halo; unseen plush seams are interpreted. All three
+references are packed and retained by offline rebuilds. The rig has 23 controls.
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python model_hoshino.py -- --output .work/hoshino.blend
+blender --background .work/hoshino.blend --python-exit-code 1 --python test_student_models.py --python render_previews.py -- --preset draft --prefix hoshino
+```
+
+The source cut patterns are `patterns/hoshino_{hair,face,uniform}.svg`; compile each
+edited SVG with `vectorize.py prepare` before rebuilding.
+
 ## Posing
 
 Open `hikari_chocopuni.blend`, select `HIKARI | pose rig`, and enter Pose Mode.

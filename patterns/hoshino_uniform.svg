@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="800" viewBox="0 0 650 800">
+  <title>Hoshino white blouse, turquoise tie and dark schoolbag harness</title>
+  <g fill="#343f63" data-layer="1">
+    <path id="shoulder-strap-L" d="M207 471L222 480Q220 526 210 568L222 588L204 589L194 571Q207 534 207 471Z"/>
+    <path id="shoulder-strap-R" d="M411 474L426 466Q434 531 424 569L412 591L396 583L410 561Z"/>
+    <path id="cross-chest-strap" d="M203 576Q311 590 418 575L417 588Q313 604 206 589Z"/>
+  </g>
+  <g fill="#cfd5e3" data-layer="0">
+    <path id="collar-shadow-L" d="M222 477L292 487L307 516L274 543L239 517Z"/>
+    <path id="collar-shadow-R" d="M341 489L403 478L397 520L361 543L333 517Z"/>
+  </g>
+  <g fill="#f8f4fa" data-layer="1">
+    <path id="point-collar-L" d="M220 471L291 484L302 510L271 535L241 510Z"/>
+    <path id="point-collar-R" d="M342 485L405 471L392 512L361 535L338 514Z"/>
+  </g>
+  <g fill="#7bd4e2" data-layer="2">
+    <path id="tie-knot" d="M301 508L317 502L332 510L326 529L309 529Z"/>
+    <path id="turquoise-tie" d="M310 526L325 526L340 626L317 647L296 627Z"/>
+  </g>
+  <g fill="none" stroke="#3d7189" stroke-width="2" data-layer="3">
+    <path id="tie-diagonal-embroidery" d="M300 610L333 638M332 610L305 638"/>
+  </g>
+  <g fill="none" stroke="#b9bfce" stroke-width="2" data-layer="2">
+    <path id="shirt-pocket" d="M346 539L370 538L371 562L350 565Z"/>
+    <path id="strap-buckle" d="M227 578L240 579L239 594L226 593Z"/>
+  </g>
+</svg>
