@@ -66,6 +66,28 @@ blender --background .work/hoshino.blend --python-exit-code 1 --python test_stud
 The source cut patterns are `patterns/hoshino_{hair,face,uniform}.svg`; compile each
 edited SVG with `vectorize.py prepare` before rebuilding.
 
+## Natsu
+
+| [original](https://www.goodsmile.com/en/product/57216/Plushie+Natsu+Kazusa+Airi+Yoshimi) | front | side | back |
+| --- | --- | --- | --- |
+| ![](https://www.goodsmile.com/gsc-webrevo-sdk-storage-prd/product/image/57216/8ahMNfTRUyxgWCtHAXnJZkjDB74pvEid.jpg) | ![](./natsu_preview_front.webp) | ![](./natsu_preview_three_quarter.webp) | ![](./natsu_preview_back.webp) |
+
+Open [natsu_chocopuni.blend](./natsu_chocopuni.blend) and pose `NATSU | pose rig`.
+The compact pink bob, single left ponytail, pale hair tabs, white pupils, tiny round
+mouth, sailor collar, red ribbon, cardigan and piped navy soles follow the 17cm
+product. The packed [three-quarter character art](https://static.wikitide.net/bluearchivewiki/5/5e/Natsu_00.png)
+supplies the ponytail attachment and complete circular crosshair halo. Hidden rear
+seams and the collar back are interpreted. The rig has 23 controls.
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python model_natsu.py -- --output .work/natsu.blend
+blender --background .work/natsu.blend --python-exit-code 1 --python test_student_models.py --python render_previews.py -- --preset draft --prefix natsu
+```
+
+The source cut patterns are `patterns/natsu_{hair,face,uniform}.svg`. Both new
+students use [the vector sewing workflow](./MODELING.md#vector-sewing-patterns) and
+retain packed references for offline rebuilding.
+
 ## Posing
 
 Open `hikari_chocopuni.blend`, select `HIKARI | pose rig`, and enter Pose Mode.

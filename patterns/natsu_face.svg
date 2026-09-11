@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <title>Natsu half-lidded raspberry eyes with white pupils and a tiny round mouth</title>
+  <g fill="#542d40" data-layer="0">
+    <path id="eye-outline-L" d="M196 368Q229 355 264 369L267 397Q263 427 236 428Q204 427 199 402Z"/>
+    <path id="eye-outline-R" d="M344 371Q376 355 410 370L409 400Q405 427 376 428Q346 426 345 402Z"/>
+  </g>
+  <g fill="#fff5f4" data-layer="1">
+    <path id="eye-sclera-L" d="M202 373Q230 362 260 375L261 399Q258 422 235 423Q209 422 205 400Z"/>
+    <path id="eye-sclera-R" d="M349 376Q377 362 405 375L404 400Q401 422 376 423Q351 422 350 400Z"/>
+  </g>
+  <g fill="#b8325d" data-layer="2">
+    <path id="eye-iris-L" d="M216 369Q235 363 256 373L257 400Q254 421 235 423Q214 421 212 400Z"/>
+    <path id="eye-iris-R" d="M354 373Q374 364 397 372L398 401Q395 422 375 423Q355 420 353 400Z"/>
+  </g>
+  <g fill="#ed83a3" data-layer="3">
+    <path id="eye-lower-L" d="M214 400Q224 392 236 402Q247 405 258 396Q258 421 236 423Q216 421 214 400Z"/>
+    <path id="eye-lower-R" d="M354 400Q364 392 376 402Q387 405 398 396Q398 421 376 423Q356 421 354 400Z"/>
+  </g>
+  <g fill="#542d40" data-layer="4">
+    <ellipse id="eye-pupil-border-L" cx="235" cy="389" rx="5.5" ry="11"/>
+    <ellipse id="eye-pupil-border-R" cx="374" cy="389" rx="5.5" ry="11"/>
+    <path id="eye-lash-L" d="M195 363Q231 352 267 366L267 376Q228 365 201 378L203 398L198 406Z"/>
+    <path id="eye-lash-R" d="M343 368Q378 354 412 364L412 400L407 407L406 378Q375 365 344 378Z"/>
+  </g>
+  <g fill="#fff5f4" data-layer="5">
+    <ellipse id="eye-pupil-L" cx="235" cy="389" rx="3.2" ry="8"/>
+    <ellipse id="eye-pupil-R" cx="374" cy="389" rx="3.2" ry="8"/>
+    <ellipse id="eye-glint-L" cx="260" cy="392" rx="6" ry="5"/>
+    <ellipse id="eye-glint-R" cx="405" cy="392" rx="5" ry="5"/>
+  </g>
+  <ellipse id="tiny-round-mouth" fill="#b53c61" cx="304" cy="451" rx="3" ry="3.2" data-layer="1"/>
+  <g fill="none" stroke="#db8c9e" stroke-width="1.7" data-layer="1">
+    <path id="blush-L" d="M217 435l-2 10m6-10l-2 10m6-10l-2 10"/>
+    <path id="blush-R" d="M389 435l-2 10m6-10l-2 10m6-10l-2 10"/>
+  </g>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <title>Natsu sailor collar, Trinity insert and raspberry neckerchief</title>
+  <path id="cardigan-hem-band" fill="#f8f2fa" data-layer="0" d="M208 622Q307 634 404 622L399 646Q307 659 211 645Z"/>
+  <g fill="#34364f" data-layer="0">
+    <path id="sailor-collar" d="M206 479Q244 495 299 499Q364 496 414 478L411 501Q371 530 313 552Q245 533 201 501Z"/>
+  </g>
+  <g fill="none" stroke="#f1eafa" stroke-width="2.4" data-layer="1">
+    <path id="collar-stripe-outer" d="M208 486Q250 508 308 539Q367 519 412 485"/>
+    <path id="collar-stripe-inner" d="M204 494Q249 520 309 545Q371 525 413 495"/>
+  </g>
+  <path id="white-insert" fill="#f8f2fa" d="M282 504Q306 497 337 504L308 533Z" data-layer="1"/>
+  <g fill="none" stroke="#535273" stroke-width="1.4" data-layer="2">
+    <path id="Trinity-emblem" d="M296 518Q284 506 302 507Q311 507 308 526Q311 509 320 508Q329 514 315 519M296 515L316 514M308 509L308 528"/>
+  </g>
+  <g fill="#d84e73" data-layer="5">
+    <path id="bow-loop-L" d="M266 521Q291 520 308 542L304 553Q277 550 266 530Z"/>
+    <path id="bow-loop-R" d="M312 540Q333 528 354 525Q354 545 317 553Z"/>
+    <path id="ribbon-tail-L" d="M300 548L310 554Q301 579 267 595Q268 569 300 548Z"/>
+    <path id="ribbon-tail-R" d="M313 550Q335 558 350 595Q326 594 312 564Z"/>
+    <path id="bow-knot" d="M304 539L314 539L318 552L309 561L302 550Z"/>
+  </g>
+  <g fill="none" stroke="#d3c8df" stroke-width="1.6" data-layer="1">
+    <path id="cardigan-placket" d="M308 559L309 644"/>
+    <path id="ribbed-hem" d="M217 633Q306 650 393 633M237 637l-1 10m18-8v10m18-8v10m18-7v9m18-9v9m18-10v9m18-11v9m18-13v9"/>
+  </g>
+  <g fill="#55546e" data-layer="4">
+    <circle id="cardigan-button-1" cx="307" cy="599" r="3.2"/>
+    <circle id="cardigan-button-2" cx="308" cy="621" r="3.2"/>
+  </g>
+</svg>

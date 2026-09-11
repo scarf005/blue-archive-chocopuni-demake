@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
+  <title>Natsu pink bob, layered fringe and the face-framing side panels</title>
+  <g fill="#f1b5cc" data-layer="0">
+    <path id="left-fringe" d="M286 163Q225 158 189 209Q169 249 181 300Q189 340 229 374L225 337Q206 305 225 267L241 246Q256 201 286 163Z"/>
+    <path id="center-fringe" data-layer="1" d="M283 164Q315 155 347 179Q375 225 362 285L346 348L335 380L311 361L301 345L301 381Q268 359 253 327Q249 287 237 253Q245 202 283 164Z"/>
+    <path id="right-fringe" d="M323 164Q382 163 420 201Q455 239 454 294L448 337L428 375L413 363L403 378L386 362L378 327Q369 297 341 270Q306 233 305 208Z"/>
+    <path id="side-panel-L" data-layer="2" d="M185 231Q164 266 162 306Q151 341 151 383Q148 427 187 464L213 477L185 479L191 491Q153 482 133 466L115 438Q124 389 127 346Q130 272 185 231Z"/>
+    <path id="side-panel-R" data-layer="2" d="M423 232Q466 265 475 319L489 347L514 370L490 374L481 362L485 389L473 390Q466 428 474 467L466 490L486 524L464 527L469 536Q432 529 420 509Q408 482 418 454Q426 425 420 392Q445 359 439 324Z"/>
+  </g>
+  <g fill="none" stroke="#d786a5" stroke-width="1.3" data-layer="3">
+    <path id="seam-left" d="M195 303Q195 330 208 354"/>
+    <path id="seam-center" d="M279 293Q279 331 288 352"/>
+    <path id="seam-right" d="M374 269Q381 295 393 310"/>
+    <path id="bob-stitch" d="M447 445Q438 476 446 492"/>
+  </g>
+</svg>
