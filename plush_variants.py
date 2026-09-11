@@ -28,6 +28,7 @@ def load_template(student, reference=None, character_reference=None, *, referenc
     root.users_collection[0].name = f'{student} | sewn components'
     bpy.context.scene.name = f'{student} | sewn plush'
     root['student'] = student
+    root.pop('eye_pattern', None)
     root['reference'] = PRODUCT
     root['character_reference'] = f'https://bluearchive.wiki/wiki/{student}/gallery'
     for bone in rig.pose.bones:
@@ -35,18 +36,21 @@ def load_template(student, reference=None, character_reference=None, *, referenc
     references = {f'REFERENCE | {student} {name}': path for name,path in
                   [('Chocopuni product photograph', reference), ('official character art', character_reference)]}
     missing = [name for name,path in references.items() if path is None]
-    if missing:
-        source = Path(reference_model) if reference_model is not None else REPO / f'{student.lower()}_chocopuni.blend'
-        if not source.is_file():
-            source = REPO / f'{student.lower()}_chocopuni.blend'
+    source = Path(reference_model) if reference_model is not None else REPO / f'{student.lower()}_chocopuni.blend'
+    if not source.is_file():
+        source = REPO / f'{student.lower()}_chocopuni.blend'
+    if missing or source.is_file():
         if not source.is_file():
             raise ValueError(f'{student}: supply --reference and --character-reference for the first build.')
         with bpy.data.libraries.load(str(source), link=False) as (available, imported):
             if not all(name in available.images for name in missing):
                 raise ValueError(f'{source.name}: missing packed references; supply the reference paths.')
-            imported.images = missing
+            imported.images = missing + [name for name in available.images
+                if name.startswith(f'REFERENCE | {student} ') and name not in references]
         if any(image.packed_file is None for image in imported.images):
             raise ValueError(f'{source.name}: references are not packed; supply the reference paths.')
+        for image in imported.images:
+            image.use_fake_user = True
     for name, path in references.items():
         if path is not None:
             image = bpy.data.images.load(str(path), check_existing=True)

@@ -79,6 +79,8 @@ Fills become conforming low-poly panels; evenodd/nonzero compound paths preserve
 holes and separate islands. Strokes become round embroidery threads. Paint order
 controls relief via `offset` and `layer_gap`; optional integer `data-layer` on a
 path/group puts paired left/right pieces at the same depth. Keep the stack shallow.
+An overlaid fill must clear the earlier thread's radius plus surface error; widen
+its `data-layer` gap when a thick collar stripe or seam passes behind a ribbon/button.
 The importer verifies the source hash and rejects stale JSON. No extra packages
 or network are needed inside Blender or for subsequent saved-model builds.
 

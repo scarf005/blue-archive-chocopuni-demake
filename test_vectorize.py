@@ -65,6 +65,7 @@ class VectorPatterns(unittest.TestCase):
             read_pattern(self.path)
         for body in ('<text>no</text>', '<path d="M0 0h5v5z" filter="url(#x)"/>',
                      '<path d="M0 0h5v5z" opacity=".5"/>',
+                     '<path d="M0 0h5v5z" fill="rgba(255,0,0,.5)"/>',
                      '<path d="M0 0h5v5z" stroke-dasharray="3 3"/>'):
             with self.assertRaises(ValueError):
                 self.svg(body)
@@ -84,6 +85,10 @@ class VectorPatterns(unittest.TestCase):
         points = [p for part in data['parts'] for path in part['paths'] for p in path['points']]
         self.assertTrue(all(33 <= x <= 68 and 38 <= y <= 73 for x,y in points))
         self.assertEqual(data, prepare(self.path))
+        original = source.read_bytes()
+        with self.assertRaisesRegex(ValueError, 'overwrite'):
+            trace(source, source)
+        self.assertEqual(source.read_bytes(), original)
         with self.assertRaises(ValueError):
             trace(source, self.path, crop=(99,0,101,100))
         Image.new('L', (100,100)).save(mask)

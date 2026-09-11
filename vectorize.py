@@ -19,6 +19,8 @@ import vtracer
 
 def trace(source, output, *, crop=None, mask=None, colors=6, speckle=12):
     """Keep the original image canvas; masks are white foreground, black background."""
+    if Path(output).suffix.lower() != '.svg' or Path(source).resolve() == Path(output).resolve():
+        raise ValueError('Trace output must be a separate .svg file; never overwrite the source.')
     with Image.open(source) as image:
         image = image.convert('RGBA')
     width, height = image.size
@@ -112,7 +114,7 @@ def prepare(source, *, tolerance=.6, max_points=12000):
         stroke = None if element.stroke.value is None else element.stroke.hexrgb
         if not fill and not stroke:
             continue
-        if float(element.values.get('opacity', 1)) != 1 or any(
+        if any(color.value is not None and color.alpha != 255 for color in (element.fill,element.stroke)) or float(element.values.get('opacity', 1)) != 1 or any(
                 float(element.values.get(key, 1)) != 1 for key in ('fill-opacity', 'stroke-opacity')):
             raise ValueError(f'{identifier}: use opaque cloth/thread colors.')
         paths = []
