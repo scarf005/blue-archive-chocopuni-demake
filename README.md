@@ -79,6 +79,11 @@ Both generators save separate `.blend` files with packed references and reuse th
 Hikari template's studio and FK rig. Unseen rear seam placement is marked as
 interpreted in each model's root-object notes.
 
+For subsequent builds, omit the reference arguments to reuse packed images and use
+`--output .work/aoba.blend` (or `.work/nozomi.blend`) for a candidate. The
+[iteration workflow](./MODELING.md#iteration-workflow) covers fast draft renders,
+component focus, photo calibration and adaptive curved panels.
+
 ## Disclaimer (저작권 고지)
 
 본 프로젝트는 비영리 목적의 개인 팬 프로젝트입니다.

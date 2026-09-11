@@ -1,6 +1,8 @@
 """Shared low-poly sewing tools for students built on the Hikari v4 pose rig."""
 
 import math
+from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 import bpy
@@ -13,7 +15,8 @@ REPO = Path(__file__).parent
 PRODUCT = 'https://www.goodsmile.com/en/product/1140953/Chocopuni+Plushie+Aoba+Hikari+Nozomi'
 
 
-def load_template(student, reference, character_reference):
+def load_template(student, reference=None, character_reference=None, *, reference_model=None):
+    """Use supplied images, or reuse the same student's packed references offline."""
     bpy.ops.wm.open_mainfile(filepath=str(REPO / 'hikari_chocopuni.blend'))
     if bpy.context.object and bpy.context.object.mode != 'OBJECT':
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -28,11 +31,28 @@ def load_template(student, reference, character_reference):
     root['character_reference'] = f'https://bluearchive.wiki/wiki/{student}/gallery'
     for bone in rig.pose.bones:
         bone.matrix_basis.identity()
-    for name, path in [('Chocopuni product photograph', reference),
-                       ('official character art', character_reference)]:
-        image = bpy.data.images.load(str(path), check_existing=True)
-        image.name = f'REFERENCE | {student} {name}'
-        image.pack()
+    references = {f'REFERENCE | {student} {name}': path for name,path in
+                  [('Chocopuni product photograph', reference), ('official character art', character_reference)]}
+    missing = [name for name,path in references.items() if path is None]
+    if missing:
+        source = Path(reference_model) if reference_model is not None else REPO / f'{student.lower()}_chocopuni.blend'
+        if not source.is_file():
+            source = REPO / f'{student.lower()}_chocopuni.blend'
+        if not source.is_file():
+            raise ValueError(f'{student}: supply --reference and --character-reference for the first build.')
+        with bpy.data.libraries.load(str(source), link=False) as (available, imported):
+            if not all(name in available.images for name in missing):
+                raise ValueError(f'{source.name}: missing packed references; supply the reference paths.')
+            imported.images = missing
+        if any(image.packed_file is None for image in imported.images):
+            raise ValueError(f'{source.name}: references are not packed; supply the reference paths.')
+    for name, path in references.items():
+        if path is not None:
+            image = bpy.data.images.load(str(path), check_existing=True)
+            image.name = name
+            image.pack()
+        else:
+            image = bpy.data.images[name]
         image.use_fake_user = True
     original = bpy.data.images.get('REFERENCE | original Chocopuni Hikari photograph')
     if original:
@@ -60,18 +80,33 @@ def color_material(name, color, source='02 | lime green velboa'):
     return material
 
 
-def surface(obj):
+def surface(obj, *, fallback='error'):
+    """Snapshot the evaluated surface; require an explicit opt-in to extrapolate."""
+    if fallback not in {'error', 'nearest'}:
+        raise ValueError('Surface fallback must be error or nearest.')
+    name = obj.name
     bpy.context.view_layer.update()
     evaluated = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
     mesh = evaluated.to_mesh()
-    tree = BVHTree.FromPolygons([evaluated.matrix_world @ v.co for v in mesh.vertices],
-                               [list(p.vertices) for p in mesh.polygons])
-    evaluated.to_mesh_clear()
+    try:
+        if not mesh or not mesh.polygons:
+            raise ValueError(f'{name}: cannot project onto an empty surface.')
+        vertices = [evaluated.matrix_world @ v.co for v in mesh.vertices]
+        tree = BVHTree.FromPolygons(vertices, [list(p.vertices) for p in mesh.polygons])
+        ray_y = min(-5, min(v.y for v in vertices)-1)
+    finally:
+        evaluated.to_mesh_clear()
 
+    @lru_cache(maxsize=8192)
     def depth(x, z):
-        hit, *_ = tree.ray_cast(Vector((x, -5, z)), Vector((0, 1, 0)))
-        if hit is None:
+        if not math.isfinite(x) or not math.isfinite(z):
+            raise ValueError(f'{name}: projection coordinates must be finite.')
+        hit, *_ = tree.ray_cast(Vector((x, ray_y, z)), Vector((0, 1, 0)))
+        if hit is None and fallback == 'nearest':
             hit, *_ = tree.find_nearest(Vector((x, -.5, z)))
+        if hit is None:
+            raise ValueError(f'{name}: no front surface at x={x:.5f}, z={z:.5f}; '
+                             'check the photo frame or the component boundary.')
         return hit.y
     return depth
 
@@ -91,9 +126,31 @@ def outline_samples(points, steps=3, cyclic=True):
     return result
 
 
-def photo(point):
-    """750 x 1000 product-photo landmarks, normalized to the 170 mm Hikari scale."""
-    return ((point[0] - 375) * .0038, (947 - point[1]) * .0038)
+@dataclass(frozen=True)
+class PhotoFrame:
+    """Map measured photo landmarks to model X/Z, independently of image resolution."""
+
+    center_x: float = 375
+    floor_y: float = 947
+    scale: float = .0038
+
+    def __post_init__(self):
+        if not all(math.isfinite(v) for v in (self.center_x, self.floor_y, self.scale)) or self.scale <= 0:
+            raise ValueError('Photo frame must have finite landmarks and a positive scale.')
+
+    @classmethod
+    def fit(cls, *, center_x, floor_y, top_y, height=3.4):
+        if not all(math.isfinite(v) for v in (floor_y, top_y, height)) or floor_y <= top_y or height <= 0:
+            raise ValueError('Photo top must be above the floor; model height must be positive.')
+        return cls(center_x, floor_y, height / (floor_y - top_y))
+
+    def __call__(self, point):
+        return ((point[0]-self.center_x)*self.scale, (self.floor_y-point[1])*self.scale)
+
+
+def photo(point, *, frame=PhotoFrame()):
+    """Keep the existing 750 x 1000 calibration unless another frame is supplied."""
+    return frame(point)
 
 
 def mesh_object(root, name, vertices, faces, material, *, bone='head', subdiv=False):
@@ -114,8 +171,20 @@ def mesh_object(root, name, vertices, faces, material, *, bone='head', subdiv=Fa
 
 
 def panel(root, name, points, depth, material, *, bone='head', offset=.008,
-          thickness=.003, smooth=3, step=.07, subdiv=False):
-    boundary = [photo(p) for p in (outline_samples(points, smooth) if smooth else points)]
+          thickness=.003, smooth=3, step=.07, subdiv=False, frame=PhotoFrame(),
+          tolerance=None, max_vertices=4096):
+    """Project felt; optionally refine where edge/centroid samples exceed tolerance.
+
+    Tolerance measures base-mesh depth error before Subdivision and Solidify.
+    A discontinuous depth field or insufficient vertex budget fails before linking a mesh.
+    """
+    if not math.isfinite(step) or step <= 0:
+        raise ValueError(f'{name}: panel step must be positive and finite.')
+    if tolerance is not None and (not math.isfinite(tolerance) or tolerance <= 0 or max_vertices < 3):
+        raise ValueError(f'{name}: tolerance and vertex budget must be positive.')
+    boundary = [photo(p, frame=frame) for p in (outline_samples(points, smooth) if smooth else points)]
+    if len(boundary) < 3 or not all(math.isfinite(c) for p in boundary for c in p):
+        raise ValueError(f'{name}: a panel needs at least three finite points.')
     if sum(a[0]*b[1] - a[1]*b[0] for a, b in zip(boundary, boundary[1:] + boundary[:1])) < 0:
         boundary.reverse()
     vertices = [Vector(p) for p in boundary]
@@ -128,18 +197,57 @@ def panel(root, name, points, depth, material, *, bone='head', offset=.008,
         for left, right in zip(xs[::2], xs[1::2]):
             for col in range(1, math.floor((right - left) / step)):
                 vertices.append(Vector((left + col * step, y)))
-    coords, _, faces, *_ = geometry.delaunay_2d_cdt(
-        vertices, [], [list(range(len(boundary)))], 1, .000001, False)
-    obj = mesh_object(root, name, [(p.x, depth(p.x, p.y)-offset, p.y) for p in coords],
+    @lru_cache(maxsize=None)
+    def projected(x, z):
+        try:
+            y = depth(x, z)
+        except ValueError as exc:
+            raise ValueError(f'{name}: {exc}') from exc
+        if not math.isfinite(y):
+            raise ValueError(f'{name}: non-finite projected depth at {(x, z)}.')
+        return y
+
+    for iteration in range(9):
+        if tolerance is not None and len(vertices) > max_vertices:
+            raise ValueError(f'{name}: adaptive panel exceeds {max_vertices} vertices; '
+                             'check the depth field or relax the tolerance.')
+        coords, _, faces, *_ = geometry.delaunay_2d_cdt(
+            vertices, [], [list(range(len(boundary)))], 1, .000001, False)
+        if tolerance is not None and len(coords) > max_vertices:
+            raise ValueError(f'{name}: adaptive panel exceeds {max_vertices} vertices.')
+        if not faces:
+            raise ValueError(f'{name}: panel outline has no area.')
+        if tolerance is None:
+            break
+        heights = [projected(p.x, p.y) for p in coords]
+        additions = set()
+        sampled_error = 0
+        for face in faces:
+            probes = [tuple(face)] + [(a,b) for a,b in zip(face, face[1:]+face[:1])]
+            for indices in probes:
+                x, z = (sum(coords[i][j] for i in indices)/len(indices) for j in (0,1))
+                error = abs(projected(x,z)-sum(heights[i] for i in indices)/len(indices))
+                sampled_error = max(sampled_error, error)
+                if error > tolerance:
+                    additions.add((x,z))
+        if not additions:
+            break
+        if iteration == 8:
+            raise ValueError(f'{name}: adaptive projection did not converge; check depth continuity.')
+        vertices.extend(Vector(p) for p in sorted(additions))
+
+    obj = mesh_object(root, name, [(p.x, projected(p.x, p.y)-offset, p.y) for p in coords],
                       faces, material, bone=bone, subdiv=subdiv)
+    if tolerance is not None:
+        obj['sampled_surface_error'] = sampled_error
     if thickness:
         modifier = obj.modifiers.new('Thin sewn cloth', 'SOLIDIFY')
         modifier.thickness = thickness
     return obj
 
 
-def seam(root, name, points, depth, material, *, bone='head', radius=.0025, offset=.012):
-    coords = [photo(p) for p in outline_samples(points, 6, cyclic=False)]
+def seam(root, name, points, depth, material, *, bone='head', radius=.0025, offset=.012, frame=PhotoFrame()):
+    coords = [photo(p, frame=frame) for p in outline_samples(points, 6, cyclic=False)]
     obj = thread(name, [[(x, depth(x, z)-offset, z) for x, z in coords]], material,
                  root.users_collection[0], radius=radius)
     attach(obj, root, bone)
@@ -183,7 +291,10 @@ def warp(obj, transform):
                     setattr(point, attr, inverse @ Vector(transform(world @ getattr(point, attr))))
 
 
-def save(root, rig, student):
+def save(root, rig, student, *, output=None):
+    output = Path(output) if output is not None else REPO / f'{student.lower()}_chocopuni.blend'
+    if output.suffix != '.blend':
+        raise ValueError('Model output must end in .blend.')
     bpy.context.view_layer.update()
     bpy.ops.object.select_all(action='DESELECT')
     rig.select_set(True)
@@ -196,4 +307,5 @@ def save(root, rig, student):
     bpy.context.scene.render.filepath = f'//{student.lower()}_preview_front.webp'
     bpy.context.preferences.filepaths.save_version = 0
     bpy.data.orphans_purge(do_recursive=True)
-    bpy.ops.wm.save_as_mainfile(filepath=str(REPO / f'{student.lower()}_chocopuni.blend'), compress=True)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    bpy.ops.wm.save_as_mainfile(filepath=str(output.resolve()), compress=True)

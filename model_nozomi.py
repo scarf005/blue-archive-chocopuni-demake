@@ -13,17 +13,19 @@ from plush_variants import (load_template, remove, surface, panel, seam, oval,
 from restore_halo import felt, thread, attach
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--reference', required=True)
-parser.add_argument('--character-reference', required=True)
+parser.add_argument('--reference', help='Product photo; otherwise reuse the saved model reference')
+parser.add_argument('--character-reference', help='Character art; otherwise reuse the saved model reference')
+parser.add_argument('--output', type=Path, help='Candidate .blend path; defaults to the repository model')
 args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else [])
-root, rig = load_template('Nozomi', args.reference, args.character_reference)
+root, rig = load_template('Nozomi', args.reference, args.character_reference, reference_model=args.output)
 mat = bpy.data.materials
 green, greenback = mat['02 | lime green velboa'], mat['03 | shaded green velboa']
 navy, blue = mat['05 | blue navy woven uniform'], mat['08 | flat blue embroidered trim']
 ivory, gold = mat['09 | ivory embroidery'], mat['10 | golden embroidery']
 brown, red, black = mat['14 | chocolate eye outlines'], mat['16 | burgundy face thread'], mat['18 | woven shoulder strap']
-face = surface(bpy.data.objects['Face | broad peach stuffed cushion'])
-torso = surface(bpy.data.objects['Uniform | broad stuffed torso'])
+# Preserve the approved depth fields and their existing edge extrapolation.
+face = surface(bpy.data.objects['Face | broad peach stuffed cushion'], fallback='nearest')
+torso = surface(bpy.data.objects['Uniform | broad stuffed torso'], fallback='nearest')
 remove(root, ('Face | eye', 'Face | golden', 'Face | light iris', 'Face | pupil',
               'Face | white', 'Face | L ', 'Face | R ', 'Face | red upper',
               'Face | fine green', 'Face | tiny', 'Face | blush', 'Face | little',
@@ -35,7 +37,7 @@ remove(root, ('Face | eye', 'Face | golden', 'Face | light iris', 'Face | pupil'
 
 # A short, flatter conductor's crown. Keep the matching embroidered railway crest.
 old_crown = bpy.data.objects['Cap | structured sewn crown']
-old_surface = surface(old_crown)
+old_surface = surface(old_crown, fallback='nearest')
 remove(root, ('Cap | structured sewn crown', 'Cap | blue woven band',
               'Cap | ivory woven band', 'Cap | crown perimeter',
               'Cap | deep soft curved visor', 'Cap | visor'))
@@ -48,7 +50,7 @@ faces = [(i*48+j, i*48+(j+1)%48, (i+1)*48+(j+1)%48, (i+1)*48+j)
 faces += [tuple(reversed(range(48))), tuple(range((len(profiles)-1)*48, len(vertices)))]
 crown = mesh_object(root, 'Cap | structured sewn crown', vertices, faces,
                     mat['06 | cap navy twill'], subdiv=True)
-cap = surface(crown)
+cap = surface(crown, fallback='nearest')
 for obj in list(root.children_recursive):
     if obj.name.startswith('Cap badge |'):
         warp(obj, lambda v: (v.x, v.y + cap(v.x, v.z) - old_surface(v.x, v.z), v.z))
@@ -174,7 +176,7 @@ seam(root, 'Uniform | hanging gold cord', [(450,611),(445,632),(447,650),(455,65
      torso, gold, bone='spine', radius=.0025, offset=.025)
 panel(root, 'Uniform | cord whistle', [(451,658),(459,658),(461,680),(453,681)], torso,
       blue, bone='spine', offset=.03, smooth=0)
-arm = surface(bpy.data.objects['Uniform | relaxed sleeve R'])
+arm = surface(bpy.data.objects['Uniform | relaxed sleeve R'], fallback='nearest')
 panel(root, 'Sleeve insignia R | broad armband',
       [(556,628),(585,650),(568,689),(540,673)], arm, blue,
       bone='upper_arm.R', offset=.014, smooth=0, thickness=.003, step=.02)
@@ -213,4 +215,4 @@ for obj, world in worlds.items():
 root['limitation'] = ('Front construction follows the product photo; gathered rear hair and '
                      'mirrored halo follow the side character art. Hidden seam placement is interpreted.')
 root['halo_reference'] = root['character_reference']
-save(root, rig, 'Nozomi')
+save(root, rig, 'Nozomi', output=args.output)

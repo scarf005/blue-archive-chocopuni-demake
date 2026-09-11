@@ -13,10 +13,11 @@ from plush_variants import (load_template, remove, color_material, surface, pane
 from restore_halo import felt, thread, attach
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--reference', required=True)
-parser.add_argument('--character-reference', required=True)
+parser.add_argument('--reference', help='Product photo; otherwise reuse the saved model reference')
+parser.add_argument('--character-reference', help='Character art; otherwise reuse the saved model reference')
+parser.add_argument('--output', type=Path, help='Candidate .blend path; defaults to the repository model')
 args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else [])
-root, rig = load_template('Aoba', args.reference, args.character_reference)
+root, rig = load_template('Aoba', args.reference, args.character_reference, reference_model=args.output)
 mat = bpy.data.materials
 hair = color_material('Aoba | cream fleece hair', (.95,.91,.76))
 hair_back = color_material('Aoba | shaded cream fleece', (.87,.82,.65))
@@ -33,7 +34,8 @@ iris_light = color_material('Aoba | coral iris', (.93,.47,.33), '13 | butter iri
 pupil = color_material('Aoba | dark rose pupils', (.43,.16,.22), '15 | brown pupils')
 halo_gold = color_material('Aoba | orange gold halo print', (.94,.67,.32), '04 | green sewing thread')
 stitch = mat['19 | dark blue sewing thread']
-old_cap_surface = surface(bpy.data.objects['Cap | structured sewn crown'])
+# Preserve the approved depth fields and their existing edge extrapolation.
+old_cap_surface = surface(bpy.data.objects['Cap | structured sewn crown'], fallback='nearest')
 
 remove(root, ('Hair |', 'Face | eye', 'Face | golden', 'Face | light iris', 'Face | pupil',
               'Face | white', 'Face | L ', 'Face | R ', 'Face | red upper', 'Face | fine green',
@@ -56,8 +58,8 @@ for obj in root.children_recursive:
     if obj.name in {'Face | broad peach stuffed cushion', 'Hair | fitted rear scalp',
                     'Hair | soft temple gusset L', 'Hair | soft temple gusset R'}:
         warp(obj, lambda v: (v.x, v.y, v.z-.045))
-face = surface(bpy.data.objects['Face | broad peach stuffed cushion'])
-torso = surface(bpy.data.objects['Uniform | broad stuffed torso'])
+face = surface(bpy.data.objects['Face | broad peach stuffed cushion'], fallback='nearest')
+torso = surface(bpy.data.objects['Uniform | broad stuffed torso'], fallback='nearest')
 
 # Soft asymmetric crown: a broader middle, gathered side panels and a leftward top.
 profiles = [(2.35,.86,.59,0), (2.47,.97,.63,0), (2.87,1.04,.66,-.01),
@@ -73,7 +75,7 @@ faces = [(i*48+j,i*48+(j+1)%48,(i+1)*48+(j+1)%48,(i+1)*48+j)
          for i in range(len(profiles)-1) for j in range(48)]
 faces += [tuple(reversed(range(48))),tuple(range((len(profiles)-1)*48,len(vertices)))]
 crown = mesh_object(root, 'Cap | soft gathered crown', vertices, faces, cap_mat, subdiv=True)
-cap = surface(crown)
+cap = surface(crown, fallback='nearest')
 def visor(x, z):
     top = 2.59 - .12*(x/.80)**2 - .075*x/.8
     t = max(0,min(1,(top-z)/.32))
@@ -170,7 +172,7 @@ for side,points in [
                 bone='hair_front.'+side,thickness=.040,subdiv=True,step=.08)
     if side == 'R':
         panel(root,'Hair | yellow barrette',[(526,390),(582,375),(586,395),(532,413)],
-              surface(obj),clip,bone='hair_front.R',offset=.012,smooth=0,thickness=.008)
+              surface(obj, fallback='nearest'),clip,bone='hair_front.R',offset=.012,smooth=0,thickness=.008)
 
 # Wine-red embroidered eyes and the small wavering mouth.
 for side,shift in [('L',0),('R',178)]:
@@ -252,12 +254,12 @@ seam(root,'Uniform | bow fold R',[(386,652),(408,647)],torso,
 ellipsoid(root,'Uniform | ivory skirt under jacket',(.025,.08,.40),(.47,.26,.17),
           ivory,bone='pelvis')
 for side,sign in [('L',-1),('R',1)]:
-    arm = surface(bpy.data.objects['Uniform | relaxed sleeve '+side])
+    arm = surface(bpy.data.objects['Uniform | relaxed sleeve '+side], fallback='nearest')
     points = ([(109,711),(126,729),(141,743),(117,767),(99,750)] if side == 'L' else
               [(599,706),(618,720),(652,744),(635,763),(610,741)])
     panel(root,'Sleeve | pale inset '+side,points,arm,ivory,bone='upper_arm.'+side,
           offset=.012,step=.05)
-    glove_surface = surface(bpy.data.objects['Glove | cloth mitten '+side])
+    glove_surface = surface(bpy.data.objects['Glove | cloth mitten '+side], fallback='nearest')
     base_points = ([(49,807),(60,813),(73,810)] if side == 'L' else
                    [(678,805),(692,815),(706,811)])
     points = [(375+(x-376)*.0034/.0038,947-(1000-y)*.0034/.0038) for x,y in base_points]
@@ -272,4 +274,4 @@ bpy.ops.object.mode_set(mode='OBJECT')
 root['halo_reference'] = root['character_reference']
 root['limitation'] = ('Product photo defines the sewn design; the official side character art '
                      'defines the cropped rear bob and circular halo. Hidden seam placement is interpreted.')
-save(root,rig,'Aoba')
+save(root,rig,'Aoba',output=args.output)

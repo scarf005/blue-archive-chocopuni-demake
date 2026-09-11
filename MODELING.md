@@ -1,5 +1,111 @@
 # Modelling notes
 
+## Iteration workflow
+
+Work in `.work/` until a candidate passes both visual review and rig checks. The
+directory is ignored by Git. First establish the complete silhouette, rear hair,
+halo and cap attachment; then add face embroidery, clothing and fine seams.
+Check each group from the front, three-quarter and back before adding more detail.
+Incomplete blockouts can be rendered directly; run the student's full rig checks
+once its required components and visibility probes are present.
+
+Existing students can be rebuilt offline. The generators reuse packed references
+from the output candidate if it exists, otherwise from the checked-in student
+model. Explicit `--reference` and `--character-reference` paths override those
+images; both are needed for a student's first build.
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python model_aoba.py -- --output .work/aoba.blend
+blender --background .work/aoba.blend --python-exit-code 1 --python test_student_models.py --python render_previews.py -- --preset draft --prefix aoba
+```
+
+The draft preset produces 600 × 750 images at 8 samples in `.work/previews/`.
+Review silhouettes, missing details and intersections at this stage. For a local
+edit, select the affected views and frame the relevant components:
+
+```sh
+blender --background .work/aoba.blend --python-exit-code 1 --python render_previews.py -- --preset draft --focus "Cap |" "Halo |" --views three_quarter back --prefix aoba_cap
+```
+
+Focus uses the evaluated mesh and curve vertices, since curve bounding boxes can
+overestimate their visible size. Surrounding parts remain visible so gaps and
+intersections can still be inspected. Rendering restores camera transforms and
+render settings on success or failure and never saves the scene.
+
+Once the candidate looks correct, render all three final views once:
+
+```sh
+blender --background .work/aoba.blend --python-exit-code 1 --python render_previews.py -- --preset final --prefix aoba_preview --output .work/final
+```
+
+The final preset retains 1200 × 1500 and 64 samples. Both presets accept explicit
+`--percentage` and `--samples` overrides. Inspect the final images beside the
+references, then copy the reviewed candidate and previews to their repository
+paths and commit the student's source and assets together. Draft images are not
+evidence that fine stitching or final shading is correct.
+
+## Geometry helpers
+
+Use [plush_variants.py](plush_variants.py) to retain the shared body, studio and rig.
+
+- Calibrate a new photo once with `PhotoFrame.fit(center_x=..., floor_y=..., top_y=...)`
+  using measured pixel landmarks. Pass that frame to `panel`, `seam` and `oval`.
+  The default model height is 3.4 Blender units, or 170 mm at this repository's
+  scale. `PhotoFrame()` preserves the existing Nozomi/Aoba coordinate mapping.
+- `surface(obj)` snapshots the evaluated geometry and rejects projection misses
+  with the component name and model coordinates. Create a new snapshot after
+  changing the target. Use `fallback='nearest'` only for deliberate extrapolation;
+  the existing student scripts retain this explicitly for compatibility.
+- For a curved patch, start with a coarse spacing and add `tolerance=.003` to
+  `panel`. It refines where edge midpoints or triangle centroids deviate from the
+  target surface. Flat regions stay sparse, concave cutouts remain open, and an
+  exceeded `max_vertices` budget or non-converging depth field raises an error
+  before linking the new piece. The default adaptive budget is 4,096 vertices.
+- Tolerance measures sampled **base-mesh** depth error, before Subdivision and
+  Solidify. It is not a collision guarantee: inspect the evaluated result, including
+  cuffs, cap/brim joins and layered embroidery. Reduce error before increasing
+  the offset; a large offset can leave a patch visibly floating.
+- Attach pieces after setting their transforms. If a control's rest position
+  changes, preserve and restore its children's world matrices. Test both movement
+  and reset, including attached halos and hair pieces.
+
+Run the helper tests with:
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python test_modelling_tools.py
+```
+
+For a new student, add its visibility probes and control expectations to
+`test_student_models.py`, converting probe coordinates with the same `PhotoFrame`.
+
+For workflow changes that should preserve an existing model, compare the saved
+candidate's evaluated geometry, topology, bindings, rest bones, palette and packed
+references, then run its rig tests:
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python test_rebuild.py -- --baseline aoba_chocopuni.blend --candidate .work/aoba.blend
+```
+
+## Measured review cost
+
+| Case | Before | After | Change |
+| --- | ---: | ---: | ---: |
+| [Aoba front render](render_previews.py), final → draft | 47.845 s | 4.332 s | 90.9% less wall time; 11.0× |
+| [Curved patch](test_modelling_tools.py), uniform → adaptive: vertices | 965 | 169 | 82.5% fewer |
+| [Curved patch](test_modelling_tools.py), maximum probed depth error | 0.091894 | 0.002683 | 97.1% less |
+
+The render comparison is one run per preset in Blender 5.2.1, Cycles CPU with eight
+threads, using the same `aoba_chocopuni.blend` and `Front comparison` camera. Wall
+time includes Blender startup; use `time blender --background aoba_chocopuni.blend
+--threads 8 --python render_previews.py -- --preset draft --views front` to repeat
+the draft measurement. The reduction comes from lower review resolution and sample
+count; final output retains the original settings. Human modelling time was not measured.
+
+The synthetic patch is 0.8 × 0.8 units on a unit sphere. Uniform spacing is `.025`;
+adaptive starts at `step=1` with `tolerance=.003`. Independent barycentric probes
+measure the final depth error. Uniform interior sampling leaves long boundary
+edges, which explains its larger error despite the higher vertex count.
+
 ## Hikari v4 geometry reduction
 
 The earlier “about 100,000 to 7,000 vertices” estimate should be read as a rough
@@ -64,8 +170,7 @@ ratio to an already weighted rig.
 - Inspect student rear/side art for details obscured in front product photos;
   retain explicit model notes for details that the available views do not show.
 
-Render saved files with `blender --background <model.blend> --python render_previews.py`.
-Use `-- --prefix <student>_preview` for a new student's front, three-quarter, and
-back WebP previews. Inspect them beside the product photo at the same scale, then
-test head/limb movement and reset. A base vertex count alone does not validate
-silhouettes, panel intersections, a complete halo, or attachment to the rig.
+Use the [iteration workflow](#iteration-workflow) for previews and validation.
+Compare final renders beside the product photo at the same scale. A base vertex
+count alone does not validate silhouettes, panel intersections, a complete halo,
+or attachment to the rig.

@@ -9,7 +9,8 @@
   with official character art or game model views. Do not infer a missing halo from
   the front silhouette alone. Record source links and distinguish unseen details
   from observed ones in the model notes.
-- Follow [MODELING.md](MODELING.md) for the v4 geometry budget and validation.
-  Keep the generation scripts reproducible, and preserve the editable pose rig.
+- Follow [MODELING.md](MODELING.md) for candidate builds, draft/focused review,
+  geometry budgets and final validation. Keep the generation scripts reproducible,
+  and preserve the editable pose rig.
 - Validate saved models in Blender, including front, three-quarter, and back renders
   and movement/reset of attached details. Commit each student's model separately.
