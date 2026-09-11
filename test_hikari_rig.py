@@ -111,5 +111,27 @@ if render_path:
     scene.render.filepath, scene.render.resolution_percentage, scene.cycles.samples = old
 reset()
 assert error(baseline, vertices(parts)) < 1e-5, 'Reset failed'
+
+# The restored halo is one connected backing, follows the head, and resets with it.
+halo = [o for o in parts if o.name.startswith('Halo |')]
+backing = scene.objects.get('Halo | continuous ivory felt backing')
+assert backing in halo, 'Missing continuous rear halo'
+assert all(o.parent_bone == 'head' for o in halo), 'Halo detached from head control'
+neighbors = {v.index: set() for v in backing.data.vertices}
+for edge in backing.data.edges:
+    a, b = edge.vertices
+    neighbors[a].add(b)
+    neighbors[b].add(a)
+visited, pending = set(), [0]
+while pending:
+    index = pending.pop()
+    if index not in visited:
+        visited.add(index)
+        pending.extend(neighbors[index] - visited)
+assert len(visited) == len(neighbors), 'Disconnected halo backing'
+rig.pose.bones['head'].rotation_euler.z = .3
+assert error(vertices(halo), {o.name: baseline[o.name] for o in halo}) > .1
+reset()
+assert error(baseline, vertices(parts)) < 1e-5, 'Halo reset failed'
 print(f'PASS: {len(parts)} components, 24 controls, rest preservation, weights, '
-      'bilateral independence, root movement, combined pose, reset, and duplicate guard')
+      'bilateral independence, root movement, combined pose, reset, duplicate guard, and halo')

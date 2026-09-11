@@ -458,13 +458,6 @@ for side in [-1,1]:
 applique('Cap badge | crown cross',[(354,85),(363,85),(363,91),(369,91),(369,97),(362,97),(362,103),(355,103),(355,97),(350,97),(350,91),(355,91)],cap_s,gold,.014,.001,smooth=False,stitch=True)
 for p in [(323,109),(399,111),(342,165),(377,165)]: disk('Cap badge | seed stitch',p,3,3,cap_s,ivory,.015,True)
 
-for side,pts,center in [
-    ('L',[(133,118),(102,127),(90,138),(91,155),(105,168),(133,180),(152,172),(150,146)],(119,147)),
-    ('R',[(624,144),(647,151),(674,165),(684,179),(682,193),(668,201),(640,208),(621,188)],(653,177)),
-]:
-    halo,hs=pillow('Halo | pale felt tab '+side,pts,center,.09,.020,.02,ivory)
-    seam('Halo | green stitched mark '+side,[(center[0]-10,center[1]-7),(center[0]+10,center[1]),(center[0]-10,center[1]+7)],hs,hairseam,.003,offset=.003)
-
 # Short real fibres add a cloth silhouette and directional nap at close viewing distance.
 def pile(o, count, length, radius):
     import bisect
@@ -506,6 +499,10 @@ for o in list(model.objects):
 root['reference']='https://tsurumai-hobby.jp/images/item/goodsmile/4580828663398.jpg'
 root['construction']='Closed stuffed volumes, conforming felt panels, satin-stitch face and crest, woven clothing.'
 root['limitation']='Back details are interpreted from the front product photograph; no animation rig.'
+import sys
+sys.path.insert(0, str(Path(__file__).parent))
+from restore_halo import add_halo
+add_halo(root)
 ref=bpy.data.images.load('/tmp/hikari-reference.jpg',check_existing=True)
 ref.name='REFERENCE | original Chocopuni Hikari photograph'; ref.pack(); ref.use_fake_user=True
 

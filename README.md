@@ -7,6 +7,10 @@
 - recreates [hikari chocopuni](https://www.amiami.com/eng/detail/?gcode=GOODS-04779988) as a blender model using [GPT-6](https://openai.com/index/gpt-6-astra/) astra high
 - model has around 7000 vertices
 
+The complete felt halo is restored from [the rear cap photograph (image 2)](https://arca.live/b/bluearchive/181993371).
+See the [back preview](./preview_back.webp) and [modelling notes](./MODELING.md) for
+the reference workflow and the measured v4 geometry reduction.
+
 ## Posing
 
 Open `hikari_chocopuni.blend`, select `HIKARI | pose rig`, and enter Pose Mode.
