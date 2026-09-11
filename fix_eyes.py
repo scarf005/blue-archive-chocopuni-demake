@@ -22,7 +22,7 @@ def rebuild_eyes(root, student):
     colors = {part['fill'] for part in read_pattern(source) if part['fill']}
     materials = {hex_color: bpy.data.materials.get(f'{student} | eye thread {hex_color}') or color_material(f'{student} | eye thread {hex_color}',
         tuple(int(hex_color[i:i+2], 16)/255 for i in (1,3,5)), '09 | ivory embroidery') for hex_color in sorted(colors)}
-    remove(root, ('Face | eye', 'Face | golden', 'Face | light iris', 'Face | pupil',
+    remove(root, ('Face | eye ', 'Face | golden', 'Face | light iris', 'Face | pupil',
                   'Face | white', 'Face | L ', 'Face | R ', 'Face | burgundy', 'Face | wine',
                   'Face | coral', 'Face | rose', 'Face | soft upper', 'Face | ivory glint', 'Face | lower lash'))
     face = surface(bpy.data.objects['Face | broad peach stuffed cushion'])

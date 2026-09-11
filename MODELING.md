@@ -148,7 +148,8 @@ blender --background --factory-startup --python-exit-code 1 --python test_rebuil
 | [Curved patch](test_modelling_tools.py), uniform → adaptive: vertices | 965 | 409 | 57.6% fewer |
 | [Curved patch](test_modelling_tools.py), maximum probed depth error | 0.091894 | 0.002981 | 96.8% less |
 
-The render comparison is one run per preset in Blender 5.2.1, Cycles CPU with eight
+The render comparison uses the [pre-eye-update workflow snapshot](https://github.com/scarf005/blue-archive-chocopuni-demake/tree/aaa7e8b),
+with one run per preset in Blender 5.2.1, Cycles CPU with eight
 threads, using the same `aoba_chocopuni.blend` and `Front comparison` camera. Wall
 time includes Blender startup; use `time blender --background aoba_chocopuni.blend
 --threads 8 --python render_previews.py -- --preset draft --views front` to repeat

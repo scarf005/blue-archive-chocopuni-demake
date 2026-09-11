@@ -15,6 +15,8 @@ if student == 'Hikari':
     for name in ('12 | amber iris satin stitch', '13 | butter iris satin stitch',
                  '14 | chocolate eye outlines', '15 | brown pupils'):
         assert name in bpy.data.materials and bpy.data.materials[name].use_fake_user, name
+if student == 'Aoba':
+    assert all(f'Face | eyebrow {side}' in bpy.data.objects for side in ('L','R')), 'Eye edits removed eyebrows'
 frame = PhotoFrame(376,1000,.0034) if student == 'Hikari' else PhotoFrame()
 boxes = {'Hikari': [(207,399,333,512),(433,390,562,510)],
          'Aoba': [(220,465,332,550),(398,465,512,550)]}[student]
