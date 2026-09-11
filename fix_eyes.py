@@ -35,7 +35,7 @@ def rebuild_eyes(root, student):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--student', choices=['Hikari'], required=True)
+    parser.add_argument('--student', choices=['Hikari', 'Aoba'], required=True)
     parser.add_argument('--output', type=Path)
     args = parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
     root = bpy.data.objects[f'{args.student.upper()} | 170 mm reference plush']

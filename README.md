@@ -40,6 +40,10 @@ The cream bob and curls, red eyes, yellow bow and hair clip, soft cap with an
 off-centre crest, work jacket, and circular gold halo follow the product and
 character references. The rig has 23 controls; Aoba has no tail control.
 
+The [eye pattern](./patterns/aoba_eyes.svg) keeps ivory scleras separate from the
+wine/coral irises and uses narrower pupils and rims. `model_aoba.py` applies the
+pattern on every rebuild; `test_eyes.py` checks front-view visibility.
+
 ## Posing
 
 Open `hikari_chocopuni.blend`, select `HIKARI | pose rig`, and enter Pose Mode.

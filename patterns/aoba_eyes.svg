@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1000" viewBox="0 0 750 1000">
+  <title>Aoba eye embroidery, refined against the 750 × 1000 Chocopuni photograph</title>
+  <desc>White outer corners, narrow burgundy iris rim, coral lower iris and small oval pupil. Photo tracing needs cleanup: fleece shadows are not eye boundaries.</desc>
+  <g fill="#552731" data-layer="0">
+    <path id="outline-L" d="M230 490 Q242 470 275 468 Q305 469 327 490 Q329 519 309 538 Q284 553 260 540 Q238 530 230 490Z"/>
+    <path id="outline-R" d="M408 490 Q420 470 453 468 Q483 469 505 490 Q507 519 487 538 Q462 553 438 540 Q416 530 408 490Z"/>
+  </g>
+  <g fill="#fff5ed" data-layer="1">
+    <path id="sclera-L" d="M237 491 Q249 478 275 476 Q303 477 321 491 Q322 517 306 533 Q283 545 263 534 Q245 526 237 491Z"/>
+    <path id="sclera-R" d="M415 491 Q427 478 453 476 Q481 477 499 491 Q500 517 484 533 Q461 545 441 534 Q423 526 415 491Z"/>
+  </g>
+  <g fill="#552731" data-layer="2">
+    <path id="iris-rim-L" d="M259 478 Q283 469 310 484 Q325 504 314 529 Q303 545 280 542 Q255 540 253 516 Q251 492 259 478Z"/>
+    <path id="iris-rim-R" d="M437 478 Q461 469 488 484 Q503 504 492 529 Q481 545 458 542 Q433 540 431 516 Q429 492 437 478Z"/>
+  </g>
+  <g fill="#9b4b58" data-layer="3">
+    <path id="iris-L" d="M262 482 Q283 474 307 487 Q319 504 309 527 Q300 539 280 538 Q259 535 257 515 Q255 495 262 482Z"/>
+    <path id="iris-R" d="M440 482 Q461 474 485 487 Q497 504 487 527 Q478 539 458 538 Q437 535 435 515 Q433 495 440 482Z"/>
+  </g>
+  <g fill="#e79573" data-layer="4">
+    <path id="lower-iris-L" d="M259 515 Q270 509 283 517 Q294 523 314 511 Q313 534 296 537 Q267 543 259 515Z"/>
+    <path id="lower-iris-R" d="M437 515 Q448 509 461 517 Q472 523 492 511 Q491 534 474 537 Q445 543 437 515Z"/>
+  </g>
+  <g fill="#552731" data-layer="5">
+    <ellipse id="pupil-rim-L" cx="288" cy="501" rx="9" ry="16"/>
+    <ellipse id="pupil-rim-R" cx="466" cy="501" rx="9" ry="16"/>
+  </g>
+  <g fill="#89434d" data-layer="6">
+    <ellipse id="pupil-L" cx="288" cy="501" rx="5.7" ry="12"/>
+    <ellipse id="pupil-R" cx="466" cy="501" rx="5.7" ry="12"/>
+  </g>
+  <g fill="#552731" data-layer="7">
+    <path id="lash-L" d="M222 492 Q241 469 272 465 Q302 463 329 484 L330 492 Q303 477 277 476 Q247 477 235 500 L239 518 L232 520 Q223 508 222 492Z"/>
+    <path id="lash-R" d="M400 487 Q419 469 450 465 Q480 463 508 484 L511 517 L505 524 L501 497 Q480 478 455 476 Q426 477 407 495Z"/>
+  </g>
+  <g fill="#fff5ed" data-layer="8">
+    <ellipse id="glint-L" cx="254" cy="501" rx="7.7" ry="6.5"/>
+    <ellipse id="glint-R" cx="432" cy="501" rx="7.7" ry="6.5"/>
+  </g>
+</svg>

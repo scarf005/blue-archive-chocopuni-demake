@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from plush_variants import (load_template, remove, color_material, surface, panel, seam,
                             oval, ellipsoid, mesh_object, warp, save)
 from restore_halo import felt, thread, attach
+from fix_eyes import rebuild_eyes
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--reference', help='Product photo; otherwise reuse the saved model reference')
@@ -28,10 +29,7 @@ glove = color_material('Aoba | grey mittens', (.68,.67,.63), '01 | warm peach sh
 ivory = mat['09 | ivory embroidery']
 bow = color_material('Aoba | butter yellow bow', (.92,.76,.41), '09 | ivory embroidery')
 clip = color_material('Aoba | yellow hair clip', (.98,.83,.035), '09 | ivory embroidery')
-outline = color_material('Aoba | burgundy eye outline', (.32,.10,.16), '14 | chocolate eye outlines')
-iris = color_material('Aoba | wine iris', (.63,.25,.32), '12 | amber iris satin stitch')
-iris_light = color_material('Aoba | coral iris', (.93,.47,.33), '13 | butter iris satin stitch')
-pupil = color_material('Aoba | dark rose pupils', (.43,.16,.22), '15 | brown pupils')
+outline = color_material('Aoba | burgundy face thread', (.32,.10,.16), '14 | chocolate eye outlines')
 halo_gold = color_material('Aoba | orange gold halo print', (.94,.67,.32), '04 | green sewing thread')
 stitch = mat['19 | dark blue sewing thread']
 # Preserve the approved depth fields and their existing edge extrapolation.
@@ -175,33 +173,11 @@ for side,points in [
               surface(obj, fallback='nearest'),clip,bone='hair_front.R',offset=.012,smooth=0,thickness=.008)
 
 # Wine-red embroidered eyes and the small wavering mouth.
+rebuild_eyes(root, 'Aoba')
 for side,shift in [('L',0),('R',178)]:
     shifted = lambda points: [(x+shift,y) for x,y in points]
-    panel(root,'Face | burgundy eye outline '+side,
-          shifted([(233,493),(246,477),(266,468),(291,469),(316,482),(327,503),
-                   (318,530),(298,545),(271,545),(249,533),(238,516)]),
-          face,outline,step=.035)
-    panel(root,'Face | wine iris '+side,
-          shifted([(246,493),(261,479),(282,474),(306,482),(318,500),
-                   (311,524),(295,537),(273,538),(254,527)]),
-          face,iris,offset=.013,step=.035)
-    panel(root,'Face | coral iris '+side,
-          shifted([(251,514),(270,514),(286,520),(315,511),(306,531),
-                   (291,539),(273,536),(258,527)]),
-          face,iris_light,offset=.018,step=.035)
-    oval(root,'Face | pupil border '+side,(289+shift,499),(12,19),face,outline,offset=.023,step=.03)
-    oval(root,'Face | rose pupil '+side,(289+shift,499),(7,14),face,pupil,offset=.027,step=.03)
-    panel(root,'Face | soft upper lashes '+side,
-          shifted([(230,489),(241,479),(257,468),(278,463),(300,468),(320,481),
-                   (331,484),(326,498),(315,490),(298,477),(276,473),(252,482),
-                   (244,496),(241,511),(234,505)]),
-          face,outline,offset=.030,step=.035,smooth=2)
-    oval(root,'Face | ivory glint '+side,(247+shift,500),(8,7),face,ivory,offset=.034,step=.03)
     seam(root,'Face | eyebrow '+side,shifted([(262,461),(282,454),(300,460)]),
          face,outline,radius=.0018)
-    for j in range(4):
-        seam(root,'Face | lower lash '+side,shifted([(259+j*13,537),(262+j*13,546)]),
-             face,outline,radius=.002)
     for j in range(4):
         x = 268+shift+j*4
         seam(root,'Face | blush '+side,[(x,561),(x-2,570)],face,
