@@ -22,6 +22,17 @@ The twin tails, tapered side locks, half-lidded smile, shorts, reversed shoulder
 strap, armband, and mirrored felt halo follow the product and character references.
 `belt_tail` controls the pointed tail behind the shorts.
 
+## Aoba
+
+| [original](https://www.goodsmile.com/en/product/1140953/Chocopuni+Plushie+Aoba+Hikari+Nozomi) | front | side | back |
+| --- | --- | --- | --- |
+| ![](https://www.goodsmile.com/gsc-webrevo-sdk-storage-prd/product/image/1140953/2843c5b2d19871b19a35acd870e8d0ca.jpg) | ![](./aoba_preview_front.webp) | ![](./aoba_preview_three_quarter.webp) | ![](./aoba_preview_back.webp) |
+
+Open [aoba_chocopuni.blend](./aoba_chocopuni.blend) and pose `AOBA | pose rig`.
+The cream bob and curls, red eyes, yellow bow and hair clip, soft cap with an
+off-centre crest, work jacket, and circular gold halo follow the product and
+character references. The rig has 23 controls; Aoba has no tail control.
+
 ## Posing
 
 Open `hikari_chocopuni.blend`, select `HIKARI | pose rig`, and enter Pose Mode.
@@ -46,6 +57,7 @@ This saves the open file and refuses to overwrite an existing rig.
 Validate the rig with `blender --background hikari_chocopuni.blend --python-exit-code 1 --python test_hikari_rig.py`.
 
 Validate Nozomi with `blender --background nozomi_chocopuni.blend --python-exit-code 1 --python test_student_models.py`.
+Validate Aoba with `blender --background aoba_chocopuni.blend --python-exit-code 1 --python test_student_models.py`.
 
 To rebuild Nozomi from the Hikari template, download the product photograph and
 [character reference](https://static.wikitide.net/bluearchivewiki/8/87/Nozomi_00.png), then run:
@@ -54,6 +66,18 @@ To rebuild Nozomi from the Hikari template, download the product photograph and
 blender --background --factory-startup --python-exit-code 1 --python model_nozomi.py -- --reference nozomi-reference.jpg --character-reference nozomi-character.png
 blender --background nozomi_chocopuni.blend --python render_previews.py -- --prefix nozomi_preview
 ```
+
+For Aoba, use her product photograph and
+[character reference](https://static.wikitide.net/bluearchivewiki/4/45/Aoba_00.png):
+
+```sh
+blender --background --factory-startup --python-exit-code 1 --python model_aoba.py -- --reference aoba-reference.jpg --character-reference aoba-character.png
+blender --background aoba_chocopuni.blend --python render_previews.py -- --prefix aoba_preview
+```
+
+Both generators save separate `.blend` files with packed references and reuse the
+Hikari template's studio and FK rig. Unseen rear seam placement is marked as
+interpreted in each model's root-object notes.
 
 ## Disclaimer (저작권 고지)
 

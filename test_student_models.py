@@ -64,6 +64,13 @@ for x, y in face_samples:
         Vector(((x-375)*.0038, -5, (947-y)*.0038)), Vector((0, 1, 0)))
     assert hit and obj.name.startswith('Face |'), f'Face obscured at {(x,y)}: {obj.name if hit else None}'
 
+if student == 'Aoba':
+    for sign in (-1, 1):
+        origin = Vector((sign*3, -4, 2.1))
+        direction = (Vector((sign*.75, -.2, 2.1))-origin).normalized()
+        hit, _, _, _, obj, _ = scene.ray_cast(bpy.context.evaluated_depsgraph_get(), origin, direction)
+        assert hit and obj.name.startswith('Hair |'), 'Exposed scalp above the ear'
+
 halo = [o for o in parts if o.name.startswith('Halo |')]
 assert halo and all(o.parent_bone == 'head' for o in halo)
 assert any(o.type == 'MESH' and max(v.co.z for v in o.data.vertices)
