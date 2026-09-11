@@ -202,24 +202,6 @@ def panel(root, name, points, depth, material, *, bone='head', offset=.008,
             raise ValueError(f'{name}: non-finite projected depth at {(x, z)}.')
         return y
 
-    if tolerance is not None:
-        # Refine the actual constrained loops, not loose points on their edges:
-        # CDT may discard collinear loose boundary points in subsequent passes.
-        def edge_points(a, b, level=0):
-            ya, yb = projected(*a), projected(*b)
-            probes = [(t, tuple(a[j]+(b[j]-a[j])*t for j in (0,1))) for t in (.25,.5,.75)]
-            if max(abs(projected(*p)-(ya+(yb-ya)*t)) for t,p in probes) <= tolerance/2:
-                return [a]
-            if level == 12:
-                raise ValueError(f'{name}: boundary projection did not converge; check depth continuity.')
-            midpoint = probes[1][1]
-            result = edge_points(a,midpoint,level+1)+edge_points(midpoint,b,level+1)
-            if len(result) > max_vertices:
-                raise ValueError(f'{name}: adaptive boundary exceeds {max_vertices} vertices.')
-            return result
-        contours = [sum((edge_points(a,b) for a,b in zip(ring, ring[1:]+ring[:1])), [])
-                    for ring in contours]
-        boundary = contours[0]
     if sum(a[0]*b[1] - a[1]*b[0] for a, b in zip(boundary, boundary[1:] + boundary[:1])) < 0:
         for ring in contours:
             ring.reverse()
@@ -238,17 +220,16 @@ def panel(root, name, points, depth, material, *, bone='head', offset=.008,
         for left, right in zip(xs[::2], xs[1::2]):
             for col in range(1, math.floor((right - left) / step)):
                 vertices.append(Vector((left + col * step, y)))
+    if tolerance is not None and len(vertices) > max_vertices:
+        raise ValueError(f'{name}: adaptive panel exceeds {max_vertices} vertices.')
+    coords, _, faces, *_ = geometry.delaunay_2d_cdt(
+        vertices, edges if holes else [], [] if holes else [list(range(len(boundary)))],
+        0 if holes else 1, .000001, False)
+    if holes:
+        faces = [face for face in faces if contains(
+            tuple(sum(coords[i][j] for i in face)/len(face) for j in (0,1)), contours, fill_rule)]
+    coords, faces = list(coords), [list(face) for face in faces]
     for iteration in range(9):
-        if tolerance is not None and len(vertices) > max_vertices:
-            raise ValueError(f'{name}: adaptive panel exceeds {max_vertices} vertices; '
-                             'check the depth field or relax the tolerance.')
-        constrained = bool(holes) or tolerance is not None
-        coords, _, faces, *_ = geometry.delaunay_2d_cdt(
-            vertices, edges if constrained else [], [] if constrained else [list(range(len(boundary)))],
-            0 if constrained else 1, .000001, False)
-        if constrained:
-            faces = [face for face in faces if contains(
-                tuple(sum(coords[i][j] for i in face)/len(face) for j in (0,1)), contours, fill_rule)]
         if tolerance is not None and len(coords) > max_vertices:
             raise ValueError(f'{name}: adaptive panel exceeds {max_vertices} vertices.')
         if not faces:
@@ -256,23 +237,46 @@ def panel(root, name, points, depth, material, *, bone='head', offset=.008,
         if tolerance is None:
             break
         heights = [projected(p.x, p.y) for p in coords]
-        additions = set()
+        split_edges, split_faces = set(), set()
         sampled_error = 0
-        for face in faces:
+        for face_index, face in enumerate(faces):
             probes = [tuple(face)] + [(a,b) for a,b in zip(face, face[1:]+face[:1])]
             for indices in probes:
                 x, z = (sum(coords[i][j] for i in indices)/len(indices) for j in (0,1))
                 error = abs(projected(x,z)-sum(heights[i] for i in indices)/len(indices))
                 sampled_error = max(sampled_error, error)
                 if error > tolerance:
-                    additions.add((x,z))
-        if not additions:
+                    if len(indices) == 2:
+                        split_edges.add(tuple(sorted(indices)))
+                    else:
+                        split_faces.add(face_index)
+        if not split_edges and not split_faces:
             break
         if iteration == 8:
             raise ValueError(f'{name}: adaptive projection did not converge '
                              f'(sampled error {sampled_error:.6f}, {len(coords)} vertices); '
                              'check depth continuity.')
-        vertices.extend(Vector(p) for p in sorted(additions))
+        # Refine triangles directly: rerunning CDT can discard collinear boundary
+        # samples. Share edge midpoints across neighbors to avoid T-junctions.
+        midpoints = {}
+        for a,b in sorted(split_edges):
+            midpoints[(a,b)] = len(coords)
+            coords.append((coords[a]+coords[b])/2)
+        refined = []
+        for face_index,face in enumerate(faces):
+            ring = []
+            for a,b in zip(face,face[1:]+face[:1]):
+                ring.append(a)
+                midpoint = midpoints.get(tuple(sorted((a,b))))
+                if midpoint is not None:
+                    ring.append(midpoint)
+            if len(ring) == len(face) and face_index not in split_faces:
+                refined.append(face)
+                continue
+            center = len(coords)
+            coords.append(sum((coords[i] for i in face),Vector((0,0)))/len(face))
+            refined.extend([center,a,b] for a,b in zip(ring,ring[1:]+ring[:1]))
+        faces = refined
 
     obj = mesh_object(root, name, [(p.x, projected(p.x, p.y)-offset, p.y) for p in coords],
                       faces, material, bone=bone, subdiv=subdiv)

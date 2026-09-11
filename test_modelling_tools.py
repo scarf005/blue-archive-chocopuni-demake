@@ -3,6 +3,7 @@
 import math
 import sys
 import unittest
+from collections import Counter
 from contextlib import redirect_stderr
 from io import StringIO
 from pathlib import Path
@@ -130,6 +131,13 @@ class ModellingTools(unittest.TestCase):
         self.assertGreater(self.max_error(coarse, curved), .1)
         self.assertLess(self.max_error(adaptive, curved), .0035)
         self.assertLess(len(adaptive.data.vertices), len(dense.data.vertices))
+        edges = Counter(tuple(sorted((a,b))) for face in adaptive.data.polygons
+                        for a,b in zip(list(face.vertices),list(face.vertices[1:])+[face.vertices[0]]))
+        for (a,b),uses in edges.items():
+            if uses == 1:
+                ends = [adaptive.data.vertices[i].co for i in (a,b)]
+                self.assertTrue(any(all(abs(abs(p[axis])-.4) < 1e-6 for p in ends)
+                                    for axis in (0,2)), 'Unshared interior edge / T-junction')
         flat = self.make_panel('Flat', lambda x,z: .2*x-.3*z, step=1, tolerance=.003)
         self.assertEqual(len(flat.data.vertices), 4)
         print('PANEL_EVIDENCE', {o.name: {'vertices': len(o.data.vertices),

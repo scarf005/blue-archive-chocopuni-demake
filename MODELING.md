@@ -143,8 +143,8 @@ blender --background --factory-startup --python-exit-code 1 --python test_rebuil
 | Case | Before | After | Change |
 | --- | ---: | ---: | ---: |
 | [Aoba front render](render_previews.py), final → draft | 47.845 s | 4.332 s | 90.9% less wall time; 11.0× |
-| [Curved patch](test_modelling_tools.py), uniform → adaptive: vertices | 965 | 203 | 79.0% fewer |
-| [Curved patch](test_modelling_tools.py), maximum probed depth error | 0.091894 | 0.002716 | 97.0% less |
+| [Curved patch](test_modelling_tools.py), uniform → adaptive: vertices | 965 | 409 | 57.6% fewer |
+| [Curved patch](test_modelling_tools.py), maximum probed depth error | 0.091894 | 0.002981 | 96.8% less |
 
 The render comparison is one run per preset in Blender 5.2.1, Cycles CPU with eight
 threads, using the same `aoba_chocopuni.blend` and `Front comparison` camera. Wall
@@ -153,11 +153,14 @@ time includes Blender startup; use `time blender --background aoba_chocopuni.ble
 the draft measurement. The reduction comes from lower review resolution and sample
 count; final output retains the original settings. Human modelling time was not measured.
 
-The synthetic patch is 0.8 × 0.8 units on a unit sphere, rerun after explicit
-boundary refinement was added for SVG patterns. Uniform spacing is `.025`;
+The synthetic patch is 0.8 × 0.8 units on a unit sphere, rerun after direct triangle
+refinement was added for SVG patterns. Uniform spacing is `.025`;
 adaptive starts at `step=1` with `tolerance=.003`. Independent barycentric probes
 measure the final depth error. Uniform interior sampling leaves long boundary
 edges, which explains its larger error despite the higher vertex count.
+Adaptive refinement shares new edge midpoints between neighboring triangles;
+rerunning constrained Delaunay can discard collinear boundary samples. This
+preserves holes and avoids T-junctions without relying on repeated retriangulation.
 
 ## Hikari v4 geometry reduction
 
