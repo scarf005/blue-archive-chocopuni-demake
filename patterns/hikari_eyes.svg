@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="753" height="1000" viewBox="0 0 753 1000">
+  <title>Hikari eye embroidery from the original 753 × 1000 product photograph</title>
+  <g fill="#432b22" data-layer="0">
+    <path id="outline-L" d="M216 452 Q234 420 261 415 Q294 418 318 444 Q325 470 314 493 Q300 513 270 509 Q236 500 216 475Z"/>
+    <path id="outline-R" d="M441 434 Q462 402 489 400 Q522 404 548 441 Q552 466 528 487 Q510 508 482 506 Q449 502 443 478Z"/>
+  </g>
+  <g fill="#fff5ed" data-layer="1">
+    <path id="sclera-L" d="M222 453 Q238 426 262 422 Q293 425 312 447 Q319 470 309 490 Q298 507 271 504 Q239 495 224 473Z"/>
+    <path id="sclera-R" d="M446 438 Q466 408 489 407 Q518 411 542 443 Q546 463 524 483 Q510 501 482 500 Q453 497 448 477Z"/>
+  </g>
+  <g fill="#432b22" data-layer="2">
+    <path id="iris-rim-L" d="M247 428 Q265 413 286 428 Q315 442 319 467 Q326 504 292 510 Q250 516 238 482 Q235 452 247 428Z"/>
+    <path id="iris-rim-R" d="M455 420 Q475 401 499 411 Q523 421 527 449 Q533 479 515 498 Q492 514 465 501 Q440 488 443 454 Q444 433 455 420Z"/>
+  </g>
+  <g fill="#edbd47" data-layer="3">
+    <path id="iris-L" d="M250 431 Q266 420 284 434 Q310 446 314 468 Q320 500 291 505 Q255 510 243 480 Q239 455 250 431Z"/>
+    <path id="iris-R" d="M459 424 Q476 407 497 416 Q518 425 522 450 Q527 477 511 494 Q491 507 468 497 Q447 485 448 454 Q449 436 459 424Z"/>
+  </g>
+  <g fill="#f9e5a3" data-layer="4">
+    <path id="lower-iris-L" d="M244 474 Q262 471 282 479 Q298 482 315 472 Q317 499 293 504 Q256 511 244 474Z"/>
+    <path id="lower-iris-R" d="M448 468 Q469 465 490 474 Q505 477 522 466 Q525 492 502 499 Q465 509 448 468Z"/>
+  </g>
+  <g fill="#432b22" data-layer="5">
+    <ellipse id="pupil-rim-L" cx="282" cy="460" rx="12" ry="17"/>
+    <ellipse id="pupil-rim-R" cx="486" cy="454" rx="12" ry="17"/>
+  </g>
+  <g fill="#b77832" data-layer="6">
+    <ellipse id="pupil-L" cx="282" cy="460" rx="8" ry="12"/>
+    <ellipse id="pupil-R" cx="486" cy="454" rx="8" ry="12"/>
+  </g>
+  <g fill="#432b22" data-layer="7">
+    <path id="lash-L" d="M217 451 Q234 420 258 414 Q291 420 319 444 L331 440 Q302 411 272 406 Q242 399 229 431Z"/>
+    <path id="lash-R" d="M435 435 Q449 410 472 402 Q502 393 529 426 L532 419 Q514 398 491 394 Q454 390 435 416Z"/>
+    <path id="outer-lash-L" d="M220 442 L207 447 L214 456 L209 463 L225 484 L231 483 L221 465 L227 454Z"/>
+    <path id="outer-lash-R" d="M535 433 L541 415 L550 422 L550 434 L560 440 L550 450 L545 468 L533 479 L530 472 L539 452Z"/>
+  </g>
+  <g fill="#fff5ed" data-layer="8">
+    <ellipse id="glint-L" cx="247" cy="477" rx="9" ry="5.5"/>
+    <ellipse id="glint-R" cx="451" cy="471" rx="9" ry="5.5"/>
+  </g>
+</svg>

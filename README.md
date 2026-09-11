@@ -11,6 +11,13 @@ The complete felt halo is restored from [the rear cap photograph (image 2)](http
 See the [back preview](./preview_back.webp) and [modelling notes](./MODELING.md) for
 the reference workflow and the measured v4 geometry reduction.
 
+Hikari's [editable eye pattern](./patterns/hikari_eyes.svg) separates white scleras,
+golden irises, pupils and glints. Regenerate its compiled coordinates with
+`uv run --python 3.12 vectorize.py prepare patterns/hikari_eyes.svg`, then apply it
+with `blender --background hikari_chocopuni.blend --python-exit-code 1 --python
+fix_eyes.py -- --student Hikari --output .work/hikari.blend`.
+`test_eyes.py` checks actual front-view sclera visibility as well as layer depth.
+
 ## Nozomi
 
 | [original](https://www.goodsmile.com/en/product/1140953/Chocopuni+Plushie+Aoba+Hikari+Nozomi) | front | side | back |
